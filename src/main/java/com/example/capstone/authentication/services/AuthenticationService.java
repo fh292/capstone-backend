@@ -72,7 +72,7 @@ public class AuthenticationService {
         admin.setFirstName(registerAdminRequest.getFirstName());
         admin.setLastName(registerAdminRequest.getLastName());
         admin.setEmail(registerAdminRequest.getEmail());
-        admin.setPassword(registerAdminRequest.getPassword());
+        admin.setPassword(passwordEncoder.encode(registerAdminRequest.getPassword()));
         admin.setPhoneNumber(registerAdminRequest.getPhoneNumber());
         admin.setPermission(registerAdminRequest.getPermission());
         admin.setDepartment(registerAdminRequest.getDepartment());
