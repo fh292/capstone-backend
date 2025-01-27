@@ -42,7 +42,7 @@ public class UserEntity implements UserDetails {
     @Column(unique = true)
     private String bankAccountNumber;
 
-    @Column(nullable = false)
+    @Column
     private String gender;
 
     @Column
