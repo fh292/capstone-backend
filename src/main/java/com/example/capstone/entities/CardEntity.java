@@ -3,7 +3,6 @@ package com.example.capstone.entities;
 import com.example.capstone.authentication.entities.UserEntity;
 import jakarta.persistence.*;
 
-import org.springframework.data.annotation.Id;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
