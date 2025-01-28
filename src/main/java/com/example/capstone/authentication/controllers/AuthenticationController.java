@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+
 @RequestMapping("/auth")
 @RestController
 public class AuthenticationController {
@@ -42,30 +44,48 @@ public class AuthenticationController {
 
     @PostMapping("/login-user")
     public ResponseEntity<LoginResponse> authenticateUser(@RequestBody LoginRequest loginUser) {
+        // Authenticate the user
         UserEntity authenticatedUser = authenticationService.authenticate(loginUser);
 
-        String jwtToken = jwtService.generateToken(authenticatedUser);
+        // Extract necessary information
+        String username = authenticatedUser.getEmail(); // Assuming UserEntity has a method getEmail()
+        String role = authenticatedUser.getRole();      // Assuming UserEntity has a method getRole()
+        String id = String.valueOf(authenticatedUser.getId()); // Assuming UserEntity has a method getId()
 
+        // Generate the JWT token
+        String jwtToken = jwtService.generateToken(new org.springframework.security.core.userdetails.User(username, "", new ArrayList<>()), role, id);
+
+        // Prepare the login response
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setToken(jwtToken);
         loginResponse.setExpiresIn(jwtService.getExpirationTime());
-        loginResponse.setRole("User");
+        loginResponse.setRole(role);
 
         return ResponseEntity.ok(loginResponse);
     }
+
 
     @PostMapping("/login-admin")
     public ResponseEntity<LoginResponse> authenticateAdmin(@RequestBody LoginRequest loginUser) {
+        // Authenticate the admin
         UserEntity authenticatedAdmin = authenticationService.authenticate(loginUser);
 
-        String jwtToken = jwtService.generateToken(authenticatedAdmin);
+        // Extract necessary information
+        String username = authenticatedAdmin.getEmail(); // Assuming UserEntity has a method getEmail()
+        String role = authenticatedAdmin.getRole();      // Assuming UserEntity has a method getRole()
+        String id = String.valueOf(authenticatedAdmin.getId()); // Assuming UserEntity has a method getId()
 
+        // Generate the JWT token
+        String jwtToken = jwtService.generateToken(new org.springframework.security.core.userdetails.User(username, "", new ArrayList<>()), role, id);
+
+        // Prepare the login response
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setToken(jwtToken);
         loginResponse.setExpiresIn(jwtService.getExpirationTime());
-        loginResponse.setRole("Admin");
+        loginResponse.setRole(role);
 
         return ResponseEntity.ok(loginResponse);
     }
+
 
 }
