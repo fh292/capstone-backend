@@ -240,4 +240,6 @@ public class CardEntity {
     public void setUser(UserEntity user) {
         this.user = user;
     }
+
+
 }

@@ -1,5 +1,6 @@
 package com.example.capstone.entities;
 
+import com.example.capstone.authentication.entities.UserEntity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
