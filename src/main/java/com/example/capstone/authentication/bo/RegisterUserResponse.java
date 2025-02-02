@@ -10,9 +10,6 @@ public class RegisterUserResponse {
     private String civilId;
     private String phoneNumber;
     private String bankAccountUsername;
-    private String subscription;
-    private String bankAccountNumber;
-    private String card;
     private String gender;
     private LocalDate dateOfBirth;
     private String profilePic;
@@ -72,30 +69,6 @@ public class RegisterUserResponse {
 
     public void setBankAccountUsername(String bankAccountUsername) {
         this.bankAccountUsername = bankAccountUsername;
-    }
-
-    public String getSubscription() {
-        return subscription;
-    }
-
-    public void setSubscription(String subscription) {
-        this.subscription = subscription;
-    }
-
-    public String getBankAccountNumber() {
-        return bankAccountNumber;
-    }
-
-    public void setBankAccountNumber(String bankAccountNumber) {
-        this.bankAccountNumber = bankAccountNumber;
-    }
-
-    public String getCard() {
-        return card;
-    }
-
-    public void setCard(String card) {
-        this.card = card;
     }
 
     public String getGender() {
