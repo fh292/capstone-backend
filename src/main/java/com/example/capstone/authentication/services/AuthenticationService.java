@@ -39,8 +39,8 @@ public class AuthenticationService {
         user.setCivilId(input.getCivilId());
         user.setPhoneNumber(input.getPhoneNumber());
         user.setBankAccountUsername(input.getBankAccountUsername());
-        user.setSubscription(input.getSubscription());
-        user.setBankAccountNumber(input.getBankAccountNumber());
+//        user.setSubscription(input.getSubscription());
+//        user.setBankAccountNumber(input.getBankAccountNumber());
         user.setGender(input.getGender());
         user.setDateOfBirth(input.getDateOfBirth());
         user.setProfilePic(input.getProfilePic());
@@ -56,8 +56,8 @@ public class AuthenticationService {
         response.setCivilId(savedUser.getCivilId());
         response.setPhoneNumber(savedUser.getPhoneNumber());
         response.setBankAccountUsername(savedUser.getBankAccountUsername());
-        response.setSubscription(savedUser.getSubscription());
-        response.setBankAccountNumber(savedUser.getBankAccountNumber());
+//        response.setSubscription(savedUser.getSubscription());
+//        response.setBankAccountNumber(savedUser.getBankAccountNumber());
         response.setGender(savedUser.getGender());
         response.setDateOfBirth(savedUser.getDateOfBirth());
         response.setProfilePic(savedUser.getProfilePic());

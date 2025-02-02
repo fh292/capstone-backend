@@ -188,7 +188,7 @@ public class UserEntity implements UserDetails {
         this.createdAt = createdAt;
     }
 
-    public Boolean getIsActive() {
+    public Boolean IsActive() {
         return isActive;
     }
 
