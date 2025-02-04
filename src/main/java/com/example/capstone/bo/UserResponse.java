@@ -1,9 +1,11 @@
 package com.example.capstone.bo;
 
 import com.example.capstone.authentication.entities.UserEntity;
+import com.example.capstone.entities.CardEntity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -18,6 +20,7 @@ public class UserResponse {
     private String subscription;
     private String bankAccountNumber;
     private String cardId;
+    private List<CardEntity> cards;
     private String gender;
     private LocalDate dateOfBirth;
     private String profilePic;
@@ -36,6 +39,7 @@ public class UserResponse {
         this.subscription = userEntity.getSubscription();
         this.bankAccountNumber = userEntity.getBankAccountNumber();
         this.cardId = Objects.toString(userEntity.getCardId(), null);
+        this.cards = userEntity.getCards();
         this.gender = userEntity.getGender();
         this.dateOfBirth = userEntity.getDateOfBirth();
         this.profilePic = userEntity.getProfilePic();
@@ -83,4 +87,12 @@ public class UserResponse {
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
+
+    public List<CardEntity> getCards() {
+        return cards;
+    }
+
+    public void setCards(List<CardEntity> cards) {
+        this.cards = cards;
+    }
 }

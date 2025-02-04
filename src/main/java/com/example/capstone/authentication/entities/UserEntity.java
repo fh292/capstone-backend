@@ -1,4 +1,6 @@
 package com.example.capstone.authentication.entities;
+import com.example.capstone.entities.CardEntity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -60,7 +62,11 @@ public class UserEntity implements UserDetails {
     @Column
     private Long cardId;
 
-    @Column(nullable = false)
+    @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonIgnoreProperties(value = { "user" })
+    private List<CardEntity> cards;
+
+    @Column
     private String role;
 
     @Column
@@ -71,7 +77,6 @@ public class UserEntity implements UserDetails {
 
     public UserEntity() {}
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -202,6 +207,14 @@ public class UserEntity implements UserDetails {
 
     public void setCardId(Long cardId) {
         this.cardId = cardId;
+    }
+
+    public List<CardEntity> getCards() {
+        return cards;
+    }
+
+    public void setCards(List<CardEntity> cards) {
+        this.cards = cards;
     }
 
     public String getRole() {
