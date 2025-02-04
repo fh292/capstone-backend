@@ -1,28 +1,29 @@
 package com.example.capstone.services;
 
-import com.example.capstone.authentication.bo.RegisterUserResponse;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
+
 import com.example.capstone.authentication.entities.UserEntity;
 import com.example.capstone.authentication.repositories.UserRepository;
 import com.example.capstone.bo.UpdateUserRequest;
 import com.example.capstone.bo.UserResponse;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 @Service
 public class UserService {
     private static UserRepository userRepository = null;
-
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     public static UserResponse getUserById(Long id) {
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User with ID " + id + " not found"));
 
         return new UserResponse(userEntity);
+    }
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     public List<UserResponse> getAllUsers() {
@@ -63,6 +64,11 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-
+    public UserResponse getCurrentUser(Authentication authentication) {
+        String email = authentication.getName();
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+        return new UserResponse(userEntity);
+    }
 
 }
