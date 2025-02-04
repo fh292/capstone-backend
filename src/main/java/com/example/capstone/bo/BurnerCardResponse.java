@@ -8,6 +8,7 @@ public class BurnerCardResponse extends CardResponse {
 
 
     public BurnerCardResponse(CardEntity card) {
+        super(card);
         this.setId(card.getId());
         this.setCardName(card.getCardName());
         this.setCardType(card.getCardType());

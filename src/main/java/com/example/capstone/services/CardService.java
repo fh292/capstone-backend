@@ -1,6 +1,7 @@
 package com.example.capstone.services;
 
 import com.example.capstone.authentication.entities.UserEntity;
+import com.example.capstone.authentication.repositories.UserRepository;
 import com.example.capstone.bo.*;
 import com.example.capstone.entities.CardEntity;
 import com.example.capstone.repositories.CardRepository;
@@ -13,6 +14,8 @@ import java.time.LocalDateTime;
 public class CardService {
 
     private static CardRepository cardRepository = null;
+    private static CardEntity cardEnitity = null;
+
 
     public CardService(CardRepository cardRepository) {
         this.cardRepository = cardRepository;
@@ -166,6 +169,37 @@ public class CardService {
 
         return new CategoryLockedCardResponse(card);
     }
+
+    public CardEntity updateCard(Long cardId, CardUpdateRequest request, UserEntity user) {
+        CardEntity card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new IllegalArgumentException("Card not found with ID: " + cardId));
+
+        if (user == null || !card.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("You do not have permission to update this card.");
+        }
+
+        if (request.getCardName() != null && !request.getCardName().isBlank()) {
+            card.setCardName(request.getCardName());
+        }
+        if (request.getCardColor() != null && !request.getCardColor().isBlank()) {
+            card.setCardColor(request.getCardColor());
+        }
+        if (request.getCardIcon() != null && !request.getCardIcon().isBlank()) {
+            card.setCardIcon(request.getCardIcon());
+        }
+
+        CardEntity savedCard = cardRepository.save(card);
+        System.out.println("Updated Card ID: " + card.getId());
+        System.out.println("Updated Card Name: " + card.getCardName());
+        System.out.println("Updated Card Color: " + card.getCardColor());
+        System.out.println("Updated Card Icon: " + card.getCardIcon());
+
+        return savedCard;
+    }
+
+
+
+
 
 
 

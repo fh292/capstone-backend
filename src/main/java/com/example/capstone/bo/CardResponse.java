@@ -1,5 +1,7 @@
 package com.example.capstone.bo;
 
+import com.example.capstone.entities.CardEntity;
+
 import java.time.LocalDate;
 
 public class CardResponse {
@@ -24,7 +26,29 @@ public class CardResponse {
     protected Boolean paused;
     protected Boolean closed;
 
-    public CardResponse() {
+//    public CardResponse(CardEntity card) {
+//    }
+
+    public CardResponse(CardEntity card) {
+        this.id = id;
+        this.cardName = cardName;
+        this.cardType = cardType;
+        this.bankAccountNumber = bankAccountNumber;
+        this.spendingLimit = spendingLimit;
+        this.remainingLimit = remainingLimit;
+        this.expiryDate = expiryDate;
+        this.isPaused = isPaused;
+        this.isClosed = isClosed;
+        this.cardColor = cardColor;
+        this.cardIcon = cardIcon;
+        this.per_transaction = per_transaction;
+        this.per_day = per_day;
+        this.per_week = per_week;
+        this.per_month = per_month;
+        this.per_year = per_year;
+        this.total = total;
+        this.paused = paused;
+        this.closed = closed;
     }
 
     public Long getId() {

@@ -6,6 +6,7 @@ public class CategoryLockedCardResponse extends CardResponse {
     private String categoryName;
 
     public CategoryLockedCardResponse(CardEntity card) {
+        super(card);
         this.setId(card.getId());
         this.setCardName(card.getCardName());
         this.setCardType(card.getCardType());

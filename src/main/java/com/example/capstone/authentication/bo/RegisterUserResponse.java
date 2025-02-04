@@ -14,6 +14,8 @@ public class RegisterUserResponse {
     private LocalDate dateOfBirth;
     private String profilePic;
     private String role="ROLE_USER";
+    private String token;
+    private long expiresIn;
 
     public Long getId() {
         return id;
@@ -101,5 +103,21 @@ public class RegisterUserResponse {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public long getExpiresIn() {
+        return expiresIn;
+    }
+
+    public void setExpiresIn(long expiresIn) {
+        this.expiresIn = expiresIn;
     }
 }

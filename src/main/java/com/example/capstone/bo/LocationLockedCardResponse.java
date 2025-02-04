@@ -8,6 +8,7 @@ public class LocationLockedCardResponse extends CardResponse{
     private Double radius;
 
     public LocationLockedCardResponse(CardEntity card) {
+        super(card);
         this.setId(card.getId());
         this.setCardName(card.getCardName());
         this.setCardType(card.getCardType());

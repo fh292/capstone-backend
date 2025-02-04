@@ -28,10 +28,25 @@ public class AuthenticationController {
 
     @PostMapping("/signup-user")
     public ResponseEntity<RegisterUserResponse> registerUser(@RequestBody RegisterUserRequest registerUser) {
+        // Register the user
         RegisterUserResponse registeredUserResponse = authenticationService.signupUser(registerUser);
 
+        // Extract necessary information from the registered user
+        String username = registeredUserResponse.getEmail(); // Assuming RegisterUserResponse has the email field
+        String role = registeredUserResponse.getRole();      // Assuming RegisterUserResponse has the role field
+        String id = String.valueOf(registeredUserResponse.getId()); // Assuming RegisterUserResponse has the id field
+
+        // Generate the JWT token
+        String jwtToken = jwtService.generateToken(new org.springframework.security.core.userdetails.User(username, "", new ArrayList<>()), role, id);
+
+        // Add the token to the response
+        registeredUserResponse.setToken(jwtToken);
+        registeredUserResponse.setExpiresIn(jwtService.getExpirationTime());
+
+        // Return the response with token
         return ResponseEntity.ok(registeredUserResponse);
     }
+
 
 
     @PostMapping("/signup-admin")
