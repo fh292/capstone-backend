@@ -5,16 +5,17 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.capstone.authentication.entities.UserEntity;
 import com.example.capstone.authentication.repositories.UserRepository;
 import com.example.capstone.bo.UpdateUserRequest;
 import com.example.capstone.bo.UserResponse;
+
 @Service
 public class UserService {
     private static UserRepository userRepository = null;
-
     public static UserResponse getUserById(Long id) {
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User with ID " + id + " not found"));
@@ -22,8 +23,11 @@ public class UserService {
         return new UserResponse(userEntity);
     }
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        UserService.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<UserResponse> getAllUsers() {
@@ -71,4 +75,35 @@ public class UserService {
         return new UserResponse(userEntity);
     }
 
+    public UserResponse updateCurrentUser(Authentication authentication, UpdateUserRequest updateRequest) {
+        String email = authentication.getName();
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+
+        if (updateRequest.getCivilId() != null) {
+            if (!updateRequest.getCivilId().equals(user.getCivilId())) {
+                Optional<UserEntity> existingUser = userRepository.findByCivilId(updateRequest.getCivilId());
+                if (existingUser.isPresent() && !existingUser.get().getId().equals(user.getId())) {
+                    throw new IllegalArgumentException("Civil ID is already in use");
+                }
+                user.setCivilId(updateRequest.getCivilId());
+            }
+        }
+
+        if (updateRequest.getFirstName() != null) user.setFirstName(updateRequest.getFirstName());
+        if (updateRequest.getLastName() != null) user.setLastName(updateRequest.getLastName());
+        if (updateRequest.getPhoneNumber() != null) user.setPhoneNumber(updateRequest.getPhoneNumber());
+        if (updateRequest.getBankAccountUsername() != null) user.setBankAccountUsername(updateRequest.getBankAccountUsername());
+        if (updateRequest.getSubscription() != null) user.setSubscription(updateRequest.getSubscription());
+        if (updateRequest.getProfilePic() != null) user.setProfilePic(updateRequest.getProfilePic());
+        if (updateRequest.getGender() != null) user.setGender(updateRequest.getGender());
+        if (updateRequest.getDateOfBirth() != null) user.setDateOfBirth(updateRequest.getDateOfBirth());
+        if (updateRequest.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(updateRequest.getPassword()));
+        }
+
+        userRepository.save(user);
+
+        return new UserResponse(user);
+    }
 }

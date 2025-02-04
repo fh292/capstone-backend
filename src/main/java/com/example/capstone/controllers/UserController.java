@@ -63,4 +63,11 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/me")
+    public ResponseEntity<UserResponse> updateCurrentUser(Authentication authentication,
+                                                        @RequestBody UpdateUserRequest updateRequest) {
+        UserResponse updatedUser = userService.updateCurrentUser(authentication, updateRequest);
+        return ResponseEntity.ok(updatedUser);
+    }
+
 }
