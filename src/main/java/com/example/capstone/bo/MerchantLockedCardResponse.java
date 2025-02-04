@@ -6,6 +6,7 @@ public class MerchantLockedCardResponse extends CardResponse{
     private String merchantName;
 
     public MerchantLockedCardResponse(CardEntity card) {
+        super(card);
         this.setId(card.getId());
         this.setCardName(card.getCardName());
         this.setCardType(card.getCardType());

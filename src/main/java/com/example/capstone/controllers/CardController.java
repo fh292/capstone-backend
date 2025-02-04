@@ -2,16 +2,15 @@ package com.example.capstone.controllers;
 
 import com.example.capstone.authentication.entities.UserEntity;
 import com.example.capstone.bo.*;
+import com.example.capstone.entities.CardEntity;
 import com.example.capstone.services.CardService;
 import com.example.capstone.services.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/card")
 @RestController
@@ -58,6 +57,22 @@ public class CardController {
         return userService.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
+
+    @PutMapping("/update/{cardId}")
+    public ResponseEntity<CardEntity> updateCard(
+            @PathVariable Long cardId,
+            @RequestBody CardUpdateRequest request) {
+        try {
+            UserEntity user = getAuthenticatedUser();
+            CardEntity updatedCard = cardService.updateCard(cardId, request, user);
+            return ResponseEntity.ok(updatedCard);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+
+
 
 
 
