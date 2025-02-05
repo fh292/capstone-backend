@@ -14,8 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.capstone.authentication.entities.UserEntity;
+import com.example.capstone.bo.CardResponse;
 import com.example.capstone.bo.UpdateUserRequest;
 import com.example.capstone.bo.UserResponse;
+import com.example.capstone.services.CardService;
 import com.example.capstone.services.UserService;
 
 @RequestMapping("/user")
@@ -23,8 +26,11 @@ import com.example.capstone.services.UserService;
 public class UserController {
 
     private final UserService userService;
-    public UserController(UserService userService) {
+    private final CardService cardService;
+
+    public UserController(UserService userService, CardService cardService) {
         this.userService = userService;
+        this.cardService = cardService;
     }
 
 
@@ -68,6 +74,14 @@ public class UserController {
                                                         @RequestBody UpdateUserRequest updateRequest) {
         UserResponse updatedUser = userService.updateCurrentUser(authentication, updateRequest);
         return ResponseEntity.ok(updatedUser);
+    }
+
+    @GetMapping("/me/cards")
+    public ResponseEntity<List<CardResponse>> getCurrentUserCards(Authentication authentication) {
+        UserEntity user = userService.findByEmail(authentication.getName())
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+        List<CardResponse> cards = cardService.getUserCards(user);
+        return ResponseEntity.ok(cards);
     }
 
 }
