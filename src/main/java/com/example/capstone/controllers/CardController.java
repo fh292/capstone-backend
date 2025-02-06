@@ -1,16 +1,27 @@
 package com.example.capstone.controllers;
 
-import com.example.capstone.authentication.entities.UserEntity;
-import com.example.capstone.bo.*;
-import com.example.capstone.entities.CardEntity;
-import com.example.capstone.services.CardService;
-import com.example.capstone.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.capstone.authentication.entities.UserEntity;
+import com.example.capstone.bo.BurnerCardRequest;
+import com.example.capstone.bo.CardLimitUpdateRequest;
+import com.example.capstone.bo.CardResponse;
+import com.example.capstone.bo.CardUpdateRequest;
+import com.example.capstone.bo.CategoryLockedCardRequest;
+import com.example.capstone.bo.LocationLockedCardRequest;
+import com.example.capstone.bo.MerchantLockedCardRequest;
+import com.example.capstone.entities.CardEntity;
+import com.example.capstone.services.CardService;
+import com.example.capstone.services.UserService;
 
 @RequestMapping("/card")
 @RestController
@@ -51,13 +62,6 @@ public class CardController {
         return ResponseEntity.ok(response);
     }
 
-    private UserEntity getAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        return userService.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-    }
-
     @PutMapping("/update/{cardId}")
     public ResponseEntity<CardEntity> updateCard(
             @PathVariable Long cardId,
@@ -69,6 +73,54 @@ public class CardController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+    }
+
+    @PutMapping("/update/{cardId}/limit")
+    public ResponseEntity<CardEntity> updateCardLimit(
+            @PathVariable Long cardId,
+            @RequestBody CardLimitUpdateRequest request) {
+        try {
+            UserEntity user = getAuthenticatedUser();
+            CardEntity updatedCard = cardService.updateCardLimit(cardId, request, user);
+            return ResponseEntity.ok(updatedCard);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @PutMapping("/{cardId}/toggle-pause")
+    public ResponseEntity<?> toggleCardPause(@PathVariable Long cardId) {
+        try {
+            UserEntity user = getAuthenticatedUser();
+            CardEntity updatedCard = cardService.toggleCardPause(cardId, user);
+            return ResponseEntity.ok(updatedCard);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the card");
+        }
+    }
+
+    @PutMapping("/{cardId}/close")
+    public ResponseEntity<?> closeCard(@PathVariable Long cardId) {
+        try {
+            UserEntity user = getAuthenticatedUser();
+            CardEntity updatedCard = cardService.closeCard(cardId, user);
+            return ResponseEntity.ok(updatedCard);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while closing the card");
+        }
+    }
+
+    private UserEntity getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return userService.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
 

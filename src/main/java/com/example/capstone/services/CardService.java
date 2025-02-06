@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.example.capstone.authentication.entities.UserEntity;
 import com.example.capstone.bo.BurnerCardRequest;
 import com.example.capstone.bo.BurnerCardResponse;
+import com.example.capstone.bo.CardLimitUpdateRequest;
 import com.example.capstone.bo.CardResponse;
 import com.example.capstone.bo.CardUpdateRequest;
 import com.example.capstone.bo.CategoryLockedCardRequest;
@@ -189,6 +190,97 @@ public class CardService {
         System.out.println("Updated Card Icon: " + card.getCardIcon());
 
         return savedCard;
+    }
+
+    public CardEntity updateCardLimit(Long cardId, CardLimitUpdateRequest request, UserEntity user) {
+        CardEntity card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new IllegalArgumentException("Card not found with ID: " + cardId));
+
+        if (user == null || !card.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("You do not have permission to update this card.");
+        }
+
+        if (request.getLimitType() == null) {
+            throw new IllegalArgumentException("Limit type must be provided.");
+        }
+
+        if (!request.getRemoveLimit() && request.getAmount() == null) {
+            throw new IllegalArgumentException("Either amount must be provided or removeLimit must be true.");
+        }
+
+        // Reset all limits to zero first
+        card.setPer_transaction(0.0);
+        card.setPer_day(0.0);
+        card.setPer_week(0.0);
+        card.setPer_month(0.0);
+        card.setPer_year(0.0);
+        card.setTotal(0.0);
+
+        // If we're removing the limit, we can return now since all limits are already zero
+        if (request.getRemoveLimit()) {
+            card.setLimitSetAt(LocalDateTime.now());
+            return cardRepository.save(card);
+        }
+
+        // Set the requested limit
+        switch (request.getLimitType().toUpperCase()) {
+            case "PER_TRANSACTION":
+                card.setPer_transaction(request.getAmount());
+                break;
+            case "PER_DAY":
+                card.setPer_day(request.getAmount());
+                break;
+            case "PER_WEEK":
+                card.setPer_week(request.getAmount());
+                break;
+            case "PER_MONTH":
+                card.setPer_month(request.getAmount());
+                break;
+            case "PER_YEAR":
+                card.setPer_year(request.getAmount());
+                break;
+            case "TOTAL":
+                card.setTotal(request.getAmount());
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid limit type. Must be one of: PER_TRANSACTION, PER_DAY, PER_WEEK, PER_MONTH, PER_YEAR, TOTAL");
+        }
+
+        card.setLimitSetAt(LocalDateTime.now());
+        return cardRepository.save(card);
+    }
+
+    public CardEntity toggleCardPause(Long cardId, UserEntity user) {
+        CardEntity card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new IllegalArgumentException("Card not found with ID: " + cardId));
+
+        if (user == null || !card.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("You do not have permission to update this card.");
+        }
+
+        if (card.getClosed()) {
+            throw new IllegalArgumentException("Cannot pause/unpause a closed card.");
+        }
+
+        card.setPaused(!card.getPaused()); // Toggle the pause state
+        return cardRepository.save(card);
+    }
+
+    public CardEntity closeCard(Long cardId, UserEntity user) {
+        CardEntity card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new IllegalArgumentException("Card not found with ID: " + cardId));
+
+        if (user == null || !card.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("You do not have permission to close this card.");
+        }
+
+        if (card.getClosed()) {
+            throw new IllegalArgumentException("Card is already closed.");
+        }
+
+        card.setClosed(true);
+        card.setPaused(true); // Also pause the card when closing
+        return cardRepository.save(card);
     }
 
     public List<CardResponse> getUserCards(UserEntity user) {
