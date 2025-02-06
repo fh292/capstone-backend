@@ -189,12 +189,59 @@ public class CardService {
         }
 
         CardEntity savedCard = cardRepository.save(card);
-        System.out.println("Updated Card ID: " + card.getId());
-        System.out.println("Updated Card Name: " + card.getCardName());
-        System.out.println("Updated Card Color: " + card.getCardColor());
-        System.out.println("Updated Card Icon: " + card.getCardIcon());
+//        System.out.println("Updated Card ID: " + card.getId());
+//        System.out.println("Updated Card Name: " + card.getCardName());
+//        System.out.println("Updated Card Color: " + card.getCardColor());
+//        System.out.println("Updated Card Icon: " + card.getCardIcon());
 
         return savedCard;
+    }
+
+    public CardLimitResponse updateCardLimit(Long cardId, CardLimitRequest request, UserEntity user) {
+        CardEntity card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new IllegalArgumentException("Card not found with ID: " + cardId));
+
+        if (user == null || !card.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("You do not have permission to update this card.");
+        }
+
+        // Update limits if provided
+        if (request.getSpendingLimit() != null) {
+            card.setSpendingLimit(request.getSpendingLimit());
+        }
+        if (request.getPer_transaction() != null) {
+            card.setPer_transaction(request.getPer_transaction());
+        }
+        if (request.getPer_day() != null) {
+            card.setPer_day(request.getPer_day());
+        }
+        if (request.getPer_week() != null) {
+            card.setPer_week(request.getPer_week());
+        }
+        if (request.getPer_month() != null) {
+            card.setPer_month(request.getPer_month());
+        }
+        if (request.getPer_year() != null) {
+            card.setPer_year(request.getPer_year());
+        }
+        if (request.getTotal() != null) {
+            card.setTotal(request.getTotal());
+        }
+
+        cardRepository.save(card);
+
+        // Return a CardLimitResponse
+        return new CardLimitResponse(
+                card.getId(),
+                card.getSpendingLimit(),
+                card.getRemainingLimit(),
+                card.getPer_transaction(),
+                card.getPer_day(),
+                card.getPer_week(),
+                card.getPer_month(),
+                card.getPer_year(),
+                card.getTotal()
+        );
     }
 
 
