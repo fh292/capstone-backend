@@ -1,54 +1,51 @@
 package com.example.capstone.bo;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import com.example.capstone.entities.CardEntity;
 
-import java.time.LocalDate;
-
 public class CardResponse {
-
-    private Long id;
-    private String cardName;
-    private String cardType;
-    private String bankAccountNumber;
-    private Double spendingLimit;
-    private Double remainingLimit;
-    private LocalDate expiryDate;
-    private Boolean isPaused;
-    private Boolean isClosed;
-    private String cardColor;
-    private String cardIcon;
-    private Double per_transaction;
-    private Double per_day;
-    private Double per_week;
-    private Double per_month;
-    private Double per_year;
-    private Double total;
-    protected Boolean paused;
-    protected Boolean closed;
-
-//    public CardResponse(CardEntity card) {
-//    }
+    protected Long id;
+    protected String cardName;
+    protected String cardType;
+    protected String cardNumber;
+    protected String cvv;
+    protected LocalDate expiryDate;
+    protected LocalDateTime createdAt;
+    protected LocalDateTime updatedAt;
+    protected LocalDateTime limitSetAt;
+    protected String cardColor;
+    protected String cardIcon;
+    protected Double per_transaction;
+    protected Double per_day;
+    protected Double per_week;
+    protected Double per_month;
+    protected Double per_year;
+    protected Double total;
+    protected Boolean isPaused;
+    protected Boolean isClosed;
 
     public CardResponse(CardEntity card) {
-        this.id = id;
-        this.cardName = cardName;
-        this.cardType = cardType;
-        this.bankAccountNumber = bankAccountNumber;
-        this.spendingLimit = spendingLimit;
-        this.remainingLimit = remainingLimit;
-        this.expiryDate = expiryDate;
-        this.isPaused = isPaused;
-        this.isClosed = isClosed;
-        this.cardColor = cardColor;
-        this.cardIcon = cardIcon;
-        this.per_transaction = per_transaction;
-        this.per_day = per_day;
-        this.per_week = per_week;
-        this.per_month = per_month;
-        this.per_year = per_year;
-        this.total = total;
-        this.paused = paused;
-        this.closed = closed;
+        this.id = card.getId();
+        this.cardName = card.getCardName();
+        this.cardType = card.getCardType();
+        this.cardNumber = card.getCardNumber();
+        this.cvv = card.getCvv();
+        this.expiryDate = card.getExpiryDate();
+        this.createdAt = card.getCreatedAt();
+        this.updatedAt = card.getUpdatedAt();
+        this.limitSetAt = card.getLimitSetAt();
+        this.cardColor = card.getCardColor();
+        this.cardIcon = card.getCardIcon();
+        this.per_transaction = card.getPer_transaction();
+        this.per_day = card.getPer_day();
+        this.per_week = card.getPer_week();
+        this.per_month = card.getPer_month();
+        this.per_year = card.getPer_year();
+        this.total = card.getTotal();
+        this.isPaused = card.getPaused();
+        this.isClosed = card.getClosed();
     }
 
     public CardResponse() {
@@ -59,135 +56,75 @@ public class CardResponse {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getCardName() {
         return cardName;
-    }
-
-    public void setCardName(String cardName) {
-        this.cardName = cardName;
     }
 
     public String getCardType() {
         return cardType;
     }
 
-    public void setCardType(String cardType) {
-        this.cardType = cardType;
+    public String getCardNumber() {
+        return cardNumber;
     }
 
-    public String getBankAccountNumber() {
-        return bankAccountNumber;
-    }
-
-    public void setBankAccountNumber(String bankAccountNumber) {
-        this.bankAccountNumber = bankAccountNumber;
-    }
-
-    public Double getSpendingLimit() {
-        return spendingLimit;
-    }
-
-    public void setSpendingLimit(Double spendingLimit) {
-        this.spendingLimit = spendingLimit;
-    }
-
-    public Double getRemainingLimit() {
-        return remainingLimit;
-    }
-
-    public void setRemainingLimit(Double remainingLimit) {
-        this.remainingLimit = remainingLimit;
+    public String getCvv() {
+        return cvv;
     }
 
     public LocalDate getExpiryDate() {
         return expiryDate;
     }
 
-    public void setExpiryDate(LocalDate expiryDate) {
-        this.expiryDate = expiryDate;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public Boolean getPaused() {
-        return isPaused;
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setPaused(Boolean paused) {
-        isPaused = paused;
-    }
-
-    public Boolean getClosed() {
-        return isClosed;
-    }
-
-    public void setClosed(Boolean closed) {
-        isClosed = closed;
+    public LocalDateTime getLimitSetAt() {
+        return limitSetAt;
     }
 
     public String getCardColor() {
         return cardColor;
     }
 
-    public void setCardColor(String cardColor) {
-        this.cardColor = cardColor;
-    }
-
     public String getCardIcon() {
         return cardIcon;
-    }
-
-    public void setCardIcon(String cardIcon) {
-        this.cardIcon = cardIcon;
     }
 
     public Double getPer_transaction() {
         return per_transaction;
     }
 
-    public void setPer_transaction(Double per_transaction) {
-        this.per_transaction = per_transaction;
-    }
-
     public Double getPer_day() {
         return per_day;
-    }
-
-    public void setPer_day(Double per_day) {
-        this.per_day = per_day;
     }
 
     public Double getPer_week() {
         return per_week;
     }
 
-    public void setPer_week(Double per_week) {
-        this.per_week = per_week;
-    }
-
     public Double getPer_month() {
         return per_month;
-    }
-
-    public void setPer_month(Double per_month) {
-        this.per_month = per_month;
     }
 
     public Double getPer_year() {
         return per_year;
     }
 
-    public void setPer_year(Double per_year) {
-        this.per_year = per_year;
-    }
-
     public Double getTotal() {
         return total;
     }
 
-    public void setTotal(Double total) {
-        this.total = total;
+    public Boolean getPaused() {
+        return isPaused;
+    }
+
+    public Boolean getClosed() {
+        return isClosed;
     }
 }

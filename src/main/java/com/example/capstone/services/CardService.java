@@ -1,46 +1,55 @@
 package com.example.capstone.services;
 
-import com.example.capstone.authentication.entities.UserEntity;
-import com.example.capstone.authentication.repositories.UserRepository;
-import com.example.capstone.bo.*;
-import com.example.capstone.entities.CardEntity;
-import com.example.capstone.repositories.CardRepository;
-import jakarta.transaction.Transactional;
+import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
+import com.example.capstone.authentication.entities.UserEntity;
+import com.example.capstone.bo.BurnerCardRequest;
+import com.example.capstone.bo.BurnerCardResponse;
+import com.example.capstone.bo.CardLimitUpdateRequest;
+import com.example.capstone.bo.CardResponse;
+import com.example.capstone.bo.CardUpdateRequest;
+import com.example.capstone.bo.CategoryLockedCardRequest;
+import com.example.capstone.bo.CategoryLockedCardResponse;
+import com.example.capstone.bo.LocationLockedCardRequest;
+import com.example.capstone.bo.LocationLockedCardResponse;
+import com.example.capstone.bo.MerchantLockedCardRequest;
+import com.example.capstone.bo.MerchantLockedCardResponse;
+import com.example.capstone.entities.CardEntity;
+import com.example.capstone.repositories.CardRepository;
 
 @Service
 public class CardService {
 
-    private static CardRepository cardRepository = null;
-    private static CardEntity cardEnitity = null;
-
+    private static final String CARD_PREFIX = "4707350";
+    private final CardRepository cardRepository;
+    private final SecureRandom random;
 
     public CardService(CardRepository cardRepository) {
         this.cardRepository = cardRepository;
+        this.random = new SecureRandom();
     }
 
     public CardResponse createBurnerCard(BurnerCardRequest request, UserEntity user) {
         if (user == null) {
             throw new IllegalArgumentException("User must be provided to create a card.");
         }
-        if (request.getDurationLimit() == null) {
-            throw new IllegalArgumentException("Duration limit is required for burner cards");
-        }
 
         CardEntity card = new CardEntity();
         card.setCardType("BURNER");
         card.setCardName(request.getCardName());
-        card.setSpendingLimit(request.getSpendingLimit());
-        card.setRemainingLimit(request.getSpendingLimit());
-        card.setExpiryDate(request.getExpiryDate());
+        card.setCardNumber(generateCardNumber());
+        card.setCvv(generateCVV());
+        card.setExpiryDate(generateExpiryDate());
         card.setCreatedAt(LocalDateTime.now());
-        card.setBankAccountNumber(request.getBankAccountNumber());
         card.setCardColor(request.getCardColor());
         card.setCardIcon(request.getCardIcon());
-        card.setShared(request.getIsShared());
         card.setPer_transaction(request.getPer_transaction());
         card.setPer_day(request.getPer_day());
         card.setPer_week(request.getPer_week());
@@ -49,9 +58,9 @@ public class CardService {
         card.setTotal(request.getTotal());
         card.setPaused(false);
         card.setClosed(false);
-
         card.setUser(user);
-        card.setDurationLimit(request.getDurationLimit());
+        card.setLimitSetAt(LocalDateTime.now());
+
         card = cardRepository.save(card);
         return new BurnerCardResponse(card);
     }
@@ -67,14 +76,12 @@ public class CardService {
         CardEntity card = new CardEntity();
         card.setCardType("MERCHANT_LOCKED");
         card.setCardName(request.getCardName());
-        card.setSpendingLimit(request.getSpendingLimit());
-        card.setRemainingLimit(request.getSpendingLimit());
-        card.setExpiryDate(request.getExpiryDate());
+        card.setCardNumber(generateCardNumber());
+        card.setCvv(generateCVV());
+        card.setExpiryDate(generateExpiryDate());
         card.setCreatedAt(LocalDateTime.now());
-        card.setBankAccountNumber(request.getBankAccountNumber());
         card.setCardColor(request.getCardColor());
         card.setCardIcon(request.getCardIcon());
-        card.setShared(request.getIsShared());
         card.setPer_transaction(request.getPer_transaction());
         card.setPer_day(request.getPer_day());
         card.setPer_week(request.getPer_week());
@@ -83,16 +90,13 @@ public class CardService {
         card.setTotal(request.getTotal());
         card.setPaused(false);
         card.setClosed(false);
-
         card.setUser(user);
-
         card.setMerchantName(request.getMerchantName());
+        card.setLimitSetAt(LocalDateTime.now());
 
         card = cardRepository.save(card);
-
         return new MerchantLockedCardResponse(card);
     }
-
 
     public CardResponse createLocationLockedCard(LocationLockedCardRequest request, UserEntity user) {
         if (user == null) {
@@ -105,14 +109,12 @@ public class CardService {
         CardEntity card = new CardEntity();
         card.setCardType("LOCATION_LOCKED");
         card.setCardName(request.getCardName());
-        card.setSpendingLimit(request.getSpendingLimit());
-        card.setRemainingLimit(request.getSpendingLimit());
-        card.setExpiryDate(request.getExpiryDate());
+        card.setCardNumber(generateCardNumber());
+        card.setCvv(generateCVV());
+        card.setExpiryDate(generateExpiryDate());
         card.setCreatedAt(LocalDateTime.now());
-        card.setBankAccountNumber(request.getBankAccountNumber());
         card.setCardColor(request.getCardColor());
         card.setCardIcon(request.getCardIcon());
-        card.setShared(request.getIsShared());
         card.setPer_transaction(request.getPer_transaction());
         card.setPer_day(request.getPer_day());
         card.setPer_week(request.getPer_week());
@@ -121,18 +123,15 @@ public class CardService {
         card.setTotal(request.getTotal());
         card.setPaused(false);
         card.setClosed(false);
-
         card.setUser(user);
-
         card.setLatitude(request.getLatitude());
         card.setLongitude(request.getLongitude());
         card.setRadius(request.getRadius());
+        card.setLimitSetAt(LocalDateTime.now());
 
         card = cardRepository.save(card);
-
         return new LocationLockedCardResponse(card);
     }
-
 
     public CardResponse createCategoryLockedCard(CategoryLockedCardRequest request, UserEntity user) {
         if (user == null) {
@@ -145,14 +144,12 @@ public class CardService {
         CardEntity card = new CardEntity();
         card.setCardType("CATEGORY_LOCKED");
         card.setCardName(request.getCardName());
-        card.setSpendingLimit(request.getSpendingLimit());
-        card.setRemainingLimit(request.getSpendingLimit());
-        card.setExpiryDate(request.getExpiryDate());
+        card.setCardNumber(generateCardNumber());
+        card.setCvv(generateCVV());
+        card.setExpiryDate(generateExpiryDate());
         card.setCreatedAt(LocalDateTime.now());
-        card.setBankAccountNumber(request.getBankAccountNumber());
         card.setCardColor(request.getCardColor());
         card.setCardIcon(request.getCardIcon());
-        card.setShared(request.getIsShared());
         card.setPer_transaction(request.getPer_transaction());
         card.setPer_day(request.getPer_day());
         card.setPer_week(request.getPer_week());
@@ -161,13 +158,11 @@ public class CardService {
         card.setTotal(request.getTotal());
         card.setPaused(false);
         card.setClosed(false);
-
         card.setUser(user);
-
         card.setCategoryName(request.getCategoryName());
+        card.setLimitSetAt(LocalDateTime.now());
 
         card = cardRepository.save(card);
-
         return new CategoryLockedCardResponse(card);
     }
 
@@ -198,7 +193,7 @@ public class CardService {
         return savedCard;
     }
 
-    public CardLimitResponse updateCardLimit(Long cardId, CardLimitRequest request, UserEntity user) {
+    public CardEntity updateCardLimit(Long cardId, CardLimitUpdateRequest request, UserEntity user) {
         CardEntity card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new IllegalArgumentException("Card not found with ID: " + cardId));
 
@@ -206,80 +201,87 @@ public class CardService {
             throw new IllegalArgumentException("You do not have permission to update this card.");
         }
 
-        if (request.getSpendingLimit() != null) {
-            card.setSpendingLimit(request.getSpendingLimit());
-        }
-        if (request.getPer_transaction() != null) {
-            card.setPer_transaction(request.getPer_transaction());
-        }
-        if (request.getPer_day() != null) {
-            card.setPer_day(request.getPer_day());
-        }
-        if (request.getPer_week() != null) {
-            card.setPer_week(request.getPer_week());
-        }
-        if (request.getPer_month() != null) {
-            card.setPer_month(request.getPer_month());
-        }
-        if (request.getPer_year() != null) {
-            card.setPer_year(request.getPer_year());
-        }
-        if (request.getTotal() != null) {
-            card.setTotal(request.getTotal());
+        if (request.getLimitType() == null) {
+            throw new IllegalArgumentException("Limit type must be provided.");
         }
 
-        cardRepository.save(card);
+        if (!request.getRemoveLimit() && request.getAmount() == null) {
+            throw new IllegalArgumentException("Either amount must be provided or removeLimit must be true.");
+        }
 
-        return new CardLimitResponse(
-                card.getId(),
-                card.getSpendingLimit(),
-                card.getRemainingLimit(),
-                card.getPer_transaction(),
-                card.getPer_day(),
-                card.getPer_week(),
-                card.getPer_month(),
-                card.getPer_year(),
-                card.getTotal()
-        );
+        // Reset all limits to zero first
+        card.setPer_transaction(0.0);
+        card.setPer_day(0.0);
+        card.setPer_week(0.0);
+        card.setPer_month(0.0);
+        card.setPer_year(0.0);
+        card.setTotal(0.0);
+
+        // If we're removing the limit, we can return now since all limits are already zero
+        if (request.getRemoveLimit()) {
+            card.setLimitSetAt(LocalDateTime.now());
+            return cardRepository.save(card);
+        }
+
+        // Set the requested limit
+        switch (request.getLimitType().toUpperCase()) {
+            case "PER_TRANSACTION":
+                card.setPer_transaction(request.getAmount());
+                break;
+            case "PER_DAY":
+                card.setPer_day(request.getAmount());
+                break;
+            case "PER_WEEK":
+                card.setPer_week(request.getAmount());
+                break;
+            case "PER_MONTH":
+                card.setPer_month(request.getAmount());
+                break;
+            case "PER_YEAR":
+                card.setPer_year(request.getAmount());
+                break;
+            case "TOTAL":
+                card.setTotal(request.getAmount());
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid limit type. Must be one of: PER_TRANSACTION, PER_DAY, PER_WEEK, PER_MONTH, PER_YEAR, TOTAL");
+        }
+
+        card.setLimitSetAt(LocalDateTime.now());
+        return cardRepository.save(card);
     }
 
-    public PausedCardResponse toggleCardPause(Long cardId, UserEntity user) {
+    public CardEntity toggleCardPause(Long cardId, UserEntity user) {
         CardEntity card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new IllegalArgumentException("Card not found with ID: " + cardId));
 
         if (user == null || !card.getUser().getId().equals(user.getId())) {
-            throw new IllegalArgumentException("You do not have permission to modify this card.");
+            throw new IllegalArgumentException("You do not have permission to update this card.");
         }
 
-        card.setPaused(!card.getPaused());
+        if (card.getClosed()) {
+            throw new IllegalArgumentException("Cannot pause/unpause a closed card.");
+        }
 
-        cardRepository.save(card);
-
-        return new PausedCardResponse(
-                card.getId(),
-                card.getPaused(),
-                "Card " + (card.getPaused() ? "paused" : "unpaused") + " successfully."
-        );
+        card.setPaused(!card.getPaused()); // Toggle the pause state
+        return cardRepository.save(card);
     }
 
-    public ClosedCardResponse closeCard(Long cardId, UserEntity user) {
+    public CardEntity closeCard(Long cardId, UserEntity user) {
         CardEntity card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new IllegalArgumentException("Card not found with ID: " + cardId));
 
-        if (!card.getUser().getId().equals(user.getId())) {
+        if (user == null || !card.getUser().getId().equals(user.getId())) {
             throw new IllegalArgumentException("You do not have permission to close this card.");
         }
 
-        card.setClosed(true);
-        cardRepository.save(card);
+        if (card.getClosed()) {
+            throw new IllegalArgumentException("Card is already closed.");
+        }
 
-        return new ClosedCardResponse(
-                card.getId(),
-                card.getCardNumber(),
-                card.getCardType(),
-                card.getCardName(),
-                card.getClosed()
-        );
+        card.setClosed(true);
+        card.setPaused(true); // Also pause the card when closing
+        return cardRepository.save(card);
     }
 
     public LocationLockedCardResponse updateGeoLocation(Long cardId, LocationLockedCardResponse locationUpdate, UserEntity user) {
@@ -314,13 +316,41 @@ public class CardService {
     }
 
 
+    public List<CardResponse> getUserCards(UserEntity user) {
+        if (user == null) {
+            throw new IllegalArgumentException("User must be provided to get cards.");
+        }
+        return cardRepository.findByUser(user).stream()
+                .map(card -> {
+                    switch (card.getCardType()) {
+                        case "BURNER":
+                            return new BurnerCardResponse(card);
+                        case "MERCHANT_LOCKED":
+                            return new MerchantLockedCardResponse(card);
+                        case "LOCATION_LOCKED":
+                            return new LocationLockedCardResponse(card);
+                        case "CATEGORY_LOCKED":
+                            return new CategoryLockedCardResponse(card);
+                        default:
+                            return new CardResponse(card);
+                    }
+                })
+                .collect(Collectors.toList());
+    }
 
+    private String generateCardNumber() {
+        StringBuilder builder = new StringBuilder(CARD_PREFIX);
+        for (int i = CARD_PREFIX.length(); i < 16; i++) {
+            builder.append(random.nextInt(10));
+        }
+        return builder.toString();
+    }
 
+    private String generateCVV() {
+        return String.format("%03d", random.nextInt(1000));
+    }
 
-
-
-
-
-
-
+    private LocalDate generateExpiryDate() {
+        return LocalDate.now().plusYears(3);
+    }
 }

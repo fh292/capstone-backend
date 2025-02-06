@@ -1,13 +1,23 @@
 package com.example.capstone.entities;
 
-import com.example.capstone.authentication.entities.UserEntity;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
-
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import com.example.capstone.authentication.entities.UserEntity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class CardEntity {
@@ -16,7 +26,14 @@ public class CardEntity {
     private Long id;
 
     private LocalDate expiryDate;
+
+    @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+
+    private LocalDateTime limitSetAt;
 
     private Double spendingLimit;
     private Double remainingLimit;
@@ -28,7 +45,6 @@ public class CardEntity {
     private Boolean isPaused;
     private Boolean isClosed;
 
-    private String durationLimit;
     private String cardType;
     private String bankAccountNumber;
     private String cardNumber;
@@ -78,6 +94,22 @@ public class CardEntity {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public LocalDateTime getLimitSetAt() {
+        return limitSetAt;
+    }
+
+    public void setLimitSetAt(LocalDateTime limitSetAt) {
+        this.limitSetAt = limitSetAt;
     }
 
     public Double getSpendingLimit() {
@@ -142,14 +174,6 @@ public class CardEntity {
 
     public void setClosed(Boolean closed) {
         isClosed = closed;
-    }
-
-    public String getDurationLimit() {
-        return durationLimit;
-    }
-
-    public void setDurationLimit(String durationLimit) {
-        this.durationLimit = durationLimit;
     }
 
     public String getCardType() {
