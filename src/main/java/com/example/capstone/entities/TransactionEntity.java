@@ -11,8 +11,10 @@ public class TransactionEntity {
     private Long id;
 
     private String merchantName;
+    private String categoryName;
     private String type;
     private String status;
+    private String description;
 
     private Double amount;
 
@@ -88,5 +90,21 @@ public class TransactionEntity {
 
     public void setUser(UserEntity user) {
         this.user = user;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
