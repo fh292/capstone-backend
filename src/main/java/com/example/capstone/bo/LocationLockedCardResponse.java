@@ -7,6 +7,10 @@ public class LocationLockedCardResponse extends CardResponse{
     private Double longitude;
     private Double radius;
 
+    public LocationLockedCardResponse() {
+        super();
+    }
+
     public LocationLockedCardResponse(CardEntity card) {
         super(card);
         this.setId(card.getId());

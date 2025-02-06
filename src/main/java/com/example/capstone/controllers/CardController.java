@@ -78,6 +78,43 @@ public class CardController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/pause/{cardId}")
+    public ResponseEntity<PausedCardResponse> togglePause(@PathVariable Long cardId) {
+        UserEntity user = getAuthenticatedUser();
+        PausedCardResponse response = cardService.toggleCardPause(cardId, user);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/close/{cardId}")
+    public ResponseEntity<ClosedCardResponse> closeCard(@PathVariable Long cardId) {
+        UserEntity user = getAuthenticatedUser();
+        ClosedCardResponse response = cardService.closeCard(cardId, user);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/update-location/{cardId}")
+    public ResponseEntity<LocationLockedCardResponse> updateGeoLocation(
+            @PathVariable Long cardId,
+            @RequestBody LocationLockedCardResponse locationUpdate) {
+
+        UserEntity user = getAuthenticatedUser();
+        LocationLockedCardResponse response = cardService.updateGeoLocation(cardId, locationUpdate, user);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/update-category/{cardId}")
+    public ResponseEntity<CategoryLockedCardResponse> updateCategoryName(
+            @PathVariable Long cardId,
+            @RequestBody CategoryLockedCardResponse requestBody
+    ) {
+        CategoryLockedCardResponse response = cardService.updateCategoryName(cardId, requestBody);
+        return ResponseEntity.ok(response);
+    }
+
+
+
+
+
 
 
 

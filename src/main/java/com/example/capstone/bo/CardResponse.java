@@ -51,6 +51,10 @@ public class CardResponse {
         this.closed = closed;
     }
 
+    public CardResponse() {
+
+    }
+
     public Long getId() {
         return id;
     }
