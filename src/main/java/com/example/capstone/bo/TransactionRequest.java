@@ -13,6 +13,7 @@ public class TransactionRequest {
     private String status;
     private String merchantName;
     private String categoryName;
+    private String description;
 
     private Double amount;
 
@@ -22,7 +23,7 @@ public class TransactionRequest {
     //Constructors
     public TransactionRequest() {}
 
-    public TransactionRequest(Long id, Long cardId, Long userId, String type, String status, String merchantName, String categoryName, Double amount, LocalDateTime createdAt) {
+    public TransactionRequest(Long id, Long cardId, Long userId, String type, String status, String merchantName, String categoryName, String description, Double amount, LocalDateTime createdAt) {
         this.id = id;
         this.cardId = cardId;
         this.userId = userId;
@@ -106,5 +107,13 @@ public class TransactionRequest {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
