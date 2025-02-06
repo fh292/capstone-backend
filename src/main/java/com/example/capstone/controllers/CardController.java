@@ -71,6 +71,14 @@ public class CardController {
         }
     }
 
+    @PutMapping("/limits/{cardId}")
+    public ResponseEntity<CardLimitResponse> updateCardLimit(@PathVariable Long cardId, @RequestBody CardLimitRequest request) {
+        UserEntity user = getAuthenticatedUser();
+        CardLimitResponse response = cardService.updateCardLimit(cardId, request, user);
+        return ResponseEntity.ok(response);
+    }
+
+
 
 
 

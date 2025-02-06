@@ -12,6 +12,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class AuthenticationService {
     private final UserRepository userRepository;
@@ -39,12 +41,14 @@ public class AuthenticationService {
         user.setCivilId(input.getCivilId());
         user.setPhoneNumber(input.getPhoneNumber());
         user.setBankAccountUsername(input.getBankAccountUsername());
-//        user.setSubscription(input.getSubscription());
-//        user.setBankAccountNumber(input.getBankAccountNumber());
+        user.setSubscription("Basic");
+        user.setBankAccountNumber(input.getBankAccountNumber());
         user.setGender(input.getGender());
         user.setDateOfBirth(input.getDateOfBirth());
         user.setProfilePic(input.getProfilePic());
         user.setRole("ROLE_USER");
+        user.setIsActive(true);
+        user.setCreatedAt(LocalDateTime.now());
 
         UserEntity savedUser = userRepository.save(user);
 
@@ -56,12 +60,14 @@ public class AuthenticationService {
         response.setCivilId(savedUser.getCivilId());
         response.setPhoneNumber(savedUser.getPhoneNumber());
         response.setBankAccountUsername(savedUser.getBankAccountUsername());
-//        response.setSubscription(savedUser.getSubscription());
-//        response.setBankAccountNumber(savedUser.getBankAccountNumber());
+        response.setSubscription(savedUser.getSubscription());
+        response.setBankAccountNumber(savedUser.getBankAccountNumber());
         response.setGender(savedUser.getGender());
         response.setDateOfBirth(savedUser.getDateOfBirth());
         response.setProfilePic(savedUser.getProfilePic());
         response.setRole(savedUser.getRole());
+        response.setCreatedAt(LocalDateTime.now());
+        response.setActive(true);
 
         return response;
     }
