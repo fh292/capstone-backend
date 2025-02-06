@@ -5,6 +5,10 @@ import com.example.capstone.entities.CardEntity;
 public class CategoryLockedCardResponse extends CardResponse {
     private String categoryName;
 
+    public CategoryLockedCardResponse() {
+        super();
+    }
+
     public CategoryLockedCardResponse(CardEntity card) {
         super(card);
         this.categoryName = card.getCategoryName();

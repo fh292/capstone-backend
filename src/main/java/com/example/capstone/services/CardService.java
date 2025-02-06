@@ -4,6 +4,7 @@ import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -184,10 +185,10 @@ public class CardService {
         }
 
         CardEntity savedCard = cardRepository.save(card);
-        System.out.println("Updated Card ID: " + card.getId());
-        System.out.println("Updated Card Name: " + card.getCardName());
-        System.out.println("Updated Card Color: " + card.getCardColor());
-        System.out.println("Updated Card Icon: " + card.getCardIcon());
+//        System.out.println("Updated Card ID: " + card.getId());
+//        System.out.println("Updated Card Name: " + card.getCardName());
+//        System.out.println("Updated Card Color: " + card.getCardColor());
+//        System.out.println("Updated Card Icon: " + card.getCardIcon());
 
         return savedCard;
     }
@@ -282,6 +283,38 @@ public class CardService {
         card.setPaused(true); // Also pause the card when closing
         return cardRepository.save(card);
     }
+
+    public LocationLockedCardResponse updateGeoLocation(Long cardId, LocationLockedCardResponse locationUpdate, UserEntity user) {
+        CardEntity card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new IllegalArgumentException("Card not found with ID: " + cardId));
+
+        if (!card.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("You do not have permission to update this card.");
+        }
+
+        card.setLatitude(locationUpdate.getLatitude());
+        card.setLongitude(locationUpdate.getLongitude());
+        card.setRadius(locationUpdate.getRadius());
+
+        cardRepository.save(card);
+
+        return new LocationLockedCardResponse(card);
+    }
+
+    public CategoryLockedCardResponse updateCategoryName(Long cardId, CategoryLockedCardResponse requestBody) {
+        Optional<CardEntity> cardOptional = cardRepository.findById(cardId);
+
+        if (cardOptional.isEmpty()) {
+            throw new RuntimeException("Card not found with ID: " + cardId);
+        }
+
+        CardEntity card = cardOptional.get();
+        card.setCategoryName(requestBody.getCategoryName());
+
+        cardRepository.save(card);
+        return new CategoryLockedCardResponse(card);
+    }
+
 
     public List<CardResponse> getUserCards(UserEntity user) {
         if (user == null) {

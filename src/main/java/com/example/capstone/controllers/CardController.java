@@ -17,7 +17,9 @@ import com.example.capstone.bo.CardLimitUpdateRequest;
 import com.example.capstone.bo.CardResponse;
 import com.example.capstone.bo.CardUpdateRequest;
 import com.example.capstone.bo.CategoryLockedCardRequest;
+import com.example.capstone.bo.CategoryLockedCardResponse;
 import com.example.capstone.bo.LocationLockedCardRequest;
+import com.example.capstone.bo.LocationLockedCardResponse;
 import com.example.capstone.bo.MerchantLockedCardRequest;
 import com.example.capstone.entities.CardEntity;
 import com.example.capstone.services.CardService;
@@ -114,6 +116,25 @@ public class CardController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while closing the card");
         }
+    }
+
+    @PutMapping("/update-location/{cardId}")
+    public ResponseEntity<LocationLockedCardResponse> updateGeoLocation(
+            @PathVariable Long cardId,
+            @RequestBody LocationLockedCardResponse locationUpdate) {
+
+        UserEntity user = getAuthenticatedUser();
+        LocationLockedCardResponse response = cardService.updateGeoLocation(cardId, locationUpdate, user);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/update-category/{cardId}")
+    public ResponseEntity<CategoryLockedCardResponse> updateCategoryName(
+            @PathVariable Long cardId,
+            @RequestBody CategoryLockedCardResponse requestBody
+    ) {
+        CategoryLockedCardResponse response = cardService.updateCategoryName(cardId, requestBody);
+        return ResponseEntity.ok(response);
     }
 
     private UserEntity getAuthenticatedUser() {

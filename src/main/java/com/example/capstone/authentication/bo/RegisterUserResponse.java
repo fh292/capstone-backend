@@ -1,6 +1,7 @@
 package com.example.capstone.authentication.bo;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class RegisterUserResponse {
     private Long id;
@@ -10,12 +11,15 @@ public class RegisterUserResponse {
     private String civilId;
     private String phoneNumber;
     private String bankAccountUsername;
+    private String subscription="Basic";
     private String gender;
     private LocalDate dateOfBirth;
     private String profilePic;
     private String role="ROLE_USER";
     private String token;
     private long expiresIn;
+    private Boolean isActive;
+    private LocalDateTime createdAt;
 
     public Long getId() {
         return id;
@@ -73,6 +77,10 @@ public class RegisterUserResponse {
         this.bankAccountUsername = bankAccountUsername;
     }
 
+    public String getSubscription() {
+        return subscription;
+    }
+
     public String getGender() {
         return gender;
     }
@@ -120,4 +128,28 @@ public class RegisterUserResponse {
     public void setExpiresIn(long expiresIn) {
         this.expiresIn = expiresIn;
     }
+
+    public void setSubscription(String subscription) {
+    }
+
+    public void setBankAccountNumber(String bankAccountNumber) {
+    }
+
+    public Boolean getActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+
 }

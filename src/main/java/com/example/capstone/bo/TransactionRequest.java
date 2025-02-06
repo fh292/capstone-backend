@@ -1,32 +1,41 @@
-package com.example.capstone.entities;
+package com.example.capstone.bo;
 
-import com.example.capstone.authentication.entities.UserEntity;
-import jakarta.persistence.*;
+import com.example.capstone.entities.TransactionEntity;
 
 import java.time.LocalDateTime;
-@Entity
-public class TransactionEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    private String merchantName;
-    private String categoryName;
+public class TransactionRequest {
+    private Long id;
+    private Long cardId;
+    private Long userId;
+
     private String type;
     private String status;
+    private String merchantName;
+    private String categoryName;
     private String description;
 
     private Double amount;
 
     private LocalDateTime createdAt;
 
-    @ManyToOne
-    @JoinColumn(name = "card_id")
-    private CardEntity card;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;
+    //Constructors
+    public TransactionRequest() {}
+
+    public TransactionRequest(Long id, Long cardId, Long userId, String type, String status, String merchantName, String categoryName, String description, Double amount, LocalDateTime createdAt) {
+        this.id = id;
+        this.cardId = cardId;
+        this.userId = userId;
+        this.type = type;
+        this.status = status;
+        this.merchantName = merchantName;
+        this.amount = amount;
+        this.createdAt = createdAt;
+    }
+
+    public TransactionRequest(TransactionEntity transactionEntity) {
+    }
 
     public Long getId() {
         return id;
@@ -36,12 +45,20 @@ public class TransactionEntity {
         this.id = id;
     }
 
-    public String getMerchantName() {
-        return merchantName;
+    public Long getCardId() {
+        return cardId;
     }
 
-    public void setMerchantName(String merchantName) {
-        this.merchantName = merchantName;
+    public void setCardId(Long cardId) {
+        this.cardId = cardId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getType() {
@@ -60,6 +77,14 @@ public class TransactionEntity {
         this.status = status;
     }
 
+    public String getMerchantName() {
+        return merchantName;
+    }
+
+    public void setMerchantName(String merchantName) {
+        this.merchantName = merchantName;
+    }
+
     public Double getAmount() {
         return amount;
     }
@@ -74,22 +99,6 @@ public class TransactionEntity {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public CardEntity getCard() {
-        return card;
-    }
-
-    public void setCard(CardEntity card) {
-        this.card = card;
-    }
-
-    public UserEntity getUser() {
-        return user;
-    }
-
-    public void setUser(UserEntity user) {
-        this.user = user;
     }
 
     public String getCategoryName() {

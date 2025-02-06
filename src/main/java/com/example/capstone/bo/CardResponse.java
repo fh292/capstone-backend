@@ -48,6 +48,10 @@ public class CardResponse {
         this.isClosed = card.getClosed();
     }
 
+    public CardResponse() {
+
+    }
+
     public Long getId() {
         return id;
     }
