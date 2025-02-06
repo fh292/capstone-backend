@@ -9,6 +9,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class CardService {
@@ -205,7 +206,6 @@ public class CardService {
             throw new IllegalArgumentException("You do not have permission to update this card.");
         }
 
-        // Update limits if provided
         if (request.getSpendingLimit() != null) {
             card.setSpendingLimit(request.getSpendingLimit());
         }
@@ -230,7 +230,6 @@ public class CardService {
 
         cardRepository.save(card);
 
-        // Return a CardLimitResponse
         return new CardLimitResponse(
                 card.getId(),
                 card.getSpendingLimit(),
@@ -243,6 +242,78 @@ public class CardService {
                 card.getTotal()
         );
     }
+
+    public PausedCardResponse toggleCardPause(Long cardId, UserEntity user) {
+        CardEntity card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new IllegalArgumentException("Card not found with ID: " + cardId));
+
+        if (user == null || !card.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("You do not have permission to modify this card.");
+        }
+
+        card.setPaused(!card.getPaused());
+
+        cardRepository.save(card);
+
+        return new PausedCardResponse(
+                card.getId(),
+                card.getPaused(),
+                "Card " + (card.getPaused() ? "paused" : "unpaused") + " successfully."
+        );
+    }
+
+    public ClosedCardResponse closeCard(Long cardId, UserEntity user) {
+        CardEntity card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new IllegalArgumentException("Card not found with ID: " + cardId));
+
+        if (!card.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("You do not have permission to close this card.");
+        }
+
+        card.setClosed(true);
+        cardRepository.save(card);
+
+        return new ClosedCardResponse(
+                card.getId(),
+                card.getCardNumber(),
+                card.getCardType(),
+                card.getCardName(),
+                card.getClosed()
+        );
+    }
+
+    public LocationLockedCardResponse updateGeoLocation(Long cardId, LocationLockedCardResponse locationUpdate, UserEntity user) {
+        CardEntity card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new IllegalArgumentException("Card not found with ID: " + cardId));
+
+        if (!card.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("You do not have permission to update this card.");
+        }
+
+        card.setLatitude(locationUpdate.getLatitude());
+        card.setLongitude(locationUpdate.getLongitude());
+        card.setRadius(locationUpdate.getRadius());
+
+        cardRepository.save(card);
+
+        return new LocationLockedCardResponse(card);
+    }
+
+    public CategoryLockedCardResponse updateCategoryName(Long cardId, CategoryLockedCardResponse requestBody) {
+        Optional<CardEntity> cardOptional = cardRepository.findById(cardId);
+
+        if (cardOptional.isEmpty()) {
+            throw new RuntimeException("Card not found with ID: " + cardId);
+        }
+
+        CardEntity card = cardOptional.get();
+        card.setCategoryName(requestBody.getCategoryName());
+
+        cardRepository.save(card);
+        return new CategoryLockedCardResponse(card);
+    }
+
+
 
 
 
