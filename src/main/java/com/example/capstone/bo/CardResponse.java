@@ -25,6 +25,7 @@ public class CardResponse {
     protected Double total;
     protected Boolean isPaused;
     protected Boolean isClosed;
+    protected Boolean isPinned;
 
     public CardResponse(CardEntity card) {
         this.id = card.getId();
@@ -46,6 +47,7 @@ public class CardResponse {
         this.total = card.getTotal();
         this.isPaused = card.getPaused();
         this.isClosed = card.getClosed();
+        this.isPinned = card.getPinned();
     }
 
     public CardResponse() {
@@ -126,5 +128,13 @@ public class CardResponse {
 
     public Boolean getClosed() {
         return isClosed;
+    }
+
+    public Boolean getPinned() {
+        return isPinned;
+    }
+
+    public void setPinned(Boolean pinned) {
+        isPinned = pinned;
     }
 }

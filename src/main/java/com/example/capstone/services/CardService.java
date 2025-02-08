@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -41,6 +42,8 @@ public class CardService {
             throw new IllegalArgumentException("User must be provided to create a card.");
         }
 
+        checkAndUpdateCardIssuance(user);
+
         CardEntity card = new CardEntity();
         card.setCardType("BURNER");
         card.setCardName(request.getCardName());
@@ -69,9 +72,8 @@ public class CardService {
         if (user == null) {
             throw new IllegalArgumentException("User must be provided to create a card.");
         }
-        if (request.getMerchantName() == null) {
-            throw new IllegalArgumentException("Merchant name is required for merchant-locked cards");
-        }
+
+        checkAndUpdateCardIssuance(user);
 
         CardEntity card = new CardEntity();
         card.setCardType("MERCHANT_LOCKED");
@@ -91,7 +93,7 @@ public class CardService {
         card.setPaused(false);
         card.setClosed(false);
         card.setUser(user);
-        card.setMerchantName(request.getMerchantName());
+        card.setMerchantName(null); // Initialize with null, will be set on first use
         card.setLimitSetAt(LocalDateTime.now());
 
         card = cardRepository.save(card);
@@ -105,6 +107,8 @@ public class CardService {
         if (request.getLatitude() == null || request.getLongitude() == null || request.getRadius() == null) {
             throw new IllegalArgumentException("Latitude, longitude, and radius are required for location-locked cards");
         }
+
+        checkAndUpdateCardIssuance(user);
 
         CardEntity card = new CardEntity();
         card.setCardType("LOCATION_LOCKED");
@@ -140,6 +144,8 @@ public class CardService {
         if (request.getCategoryName() == null) {
             throw new IllegalArgumentException("Category name is required for category-locked cards");
         }
+
+        checkAndUpdateCardIssuance(user);
 
         CardEntity card = new CardEntity();
         card.setCardType("CATEGORY_LOCKED");
@@ -284,6 +290,22 @@ public class CardService {
         return cardRepository.save(card);
     }
 
+    public CardEntity toggleCardPin(Long cardId, UserEntity user) {
+        CardEntity card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new IllegalArgumentException("Card not found with ID: " + cardId));
+
+        if (user == null || !card.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("You do not have permission to pin/unpin this card.");
+        }
+
+        if (card.getClosed()) {
+            throw new IllegalArgumentException("Cannot pin/unpin a closed card.");
+        }
+
+        card.setPinned(card.getPinned() == null || !card.getPinned()); // Toggle the pin state
+        return cardRepository.save(card);
+    }
+
     public LocationLockedCardResponse updateGeoLocation(Long cardId, LocationLockedCardResponse locationUpdate, UserEntity user) {
         CardEntity card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new IllegalArgumentException("Card not found with ID: " + cardId));
@@ -315,12 +337,21 @@ public class CardService {
         return new CategoryLockedCardResponse(card);
     }
 
-
     public List<CardResponse> getUserCards(UserEntity user) {
         if (user == null) {
             throw new IllegalArgumentException("User must be provided to get cards.");
         }
         return cardRepository.findByUser(user).stream()
+                .sorted((c1, c2) -> {
+                    // Helper function to get sort priority (lower number = higher priority)
+                    Function<CardEntity, Integer> getPriority = card -> {
+                        if (Boolean.TRUE.equals(card.getPinned())) return 1;  // Pinned cards first
+                        if (Boolean.FALSE.equals(card.getPaused()) && Boolean.FALSE.equals(card.getClosed())) return 2;  // Active cards second
+                        if (Boolean.TRUE.equals(card.getPaused()) && Boolean.FALSE.equals(card.getClosed())) return 3;  // Paused cards third
+                        return 4;  // Closed cards last
+                    };
+                    return getPriority.apply(c1).compareTo(getPriority.apply(c2));
+                })
                 .map(card -> {
                     switch (card.getCardType()) {
                         case "BURNER":
@@ -336,6 +367,14 @@ public class CardService {
                     }
                 })
                 .collect(Collectors.toList());
+    }
+
+
+    private void checkAndUpdateCardIssuance(UserEntity user) {
+        if (user.getCurrentMonthCardIssuance() >= user.getMonthlyCardIssuanceLimit()) {
+            throw new IllegalStateException("Monthly card issuance limit reached. Please try again next month.");
+        }
+        user.setCurrentMonthCardIssuance(user.getCurrentMonthCardIssuance() + 1);
     }
 
     private String generateCardNumber() {

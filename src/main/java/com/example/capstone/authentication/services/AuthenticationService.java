@@ -1,18 +1,19 @@
 package com.example.capstone.authentication.services;
 
-import com.example.capstone.authentication.bo.LoginRequest;
-import com.example.capstone.authentication.bo.RegisterAdminRequest;
-import com.example.capstone.authentication.bo.RegisterAdminResponse;
-import com.example.capstone.authentication.bo.RegisterUserResponse;
-import com.example.capstone.authentication.entities.UserEntity;
-import com.example.capstone.authentication.bo.RegisterUserRequest;
-import com.example.capstone.authentication.repositories.UserRepository;
+import java.time.LocalDateTime;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import com.example.capstone.authentication.bo.LoginRequest;
+import com.example.capstone.authentication.bo.RegisterAdminRequest;
+import com.example.capstone.authentication.bo.RegisterAdminResponse;
+import com.example.capstone.authentication.bo.RegisterUserRequest;
+import com.example.capstone.authentication.bo.RegisterUserResponse;
+import com.example.capstone.authentication.entities.UserEntity;
+import com.example.capstone.authentication.repositories.UserRepository;
 
 @Service
 public class AuthenticationService {
@@ -49,6 +50,10 @@ public class AuthenticationService {
         user.setRole("ROLE_USER");
         user.setIsActive(true);
         user.setCreatedAt(LocalDateTime.now());
+        user.setLastSpendReset(LocalDateTime.now());
+        user.setCurrentMonthlySpend(0.0);
+        user.setCurrentDailySpend(0.0);
+        user.setCurrentMonthCardIssuance(0);
 
         UserEntity savedUser = userRepository.save(user);
 

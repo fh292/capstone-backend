@@ -118,6 +118,19 @@ public class CardController {
         }
     }
 
+    @PutMapping("/{cardId}/toggle-pin")
+    public ResponseEntity<?> toggleCardPin(@PathVariable Long cardId) {
+        try {
+            UserEntity user = getAuthenticatedUser();
+            CardEntity updatedCard = cardService.toggleCardPin(cardId, user);
+            return ResponseEntity.ok(updatedCard);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while toggling the card pin status");
+        }
+    }
+
     @PutMapping("/update-location/{cardId}")
     public ResponseEntity<LocationLockedCardResponse> updateGeoLocation(
             @PathVariable Long cardId,
