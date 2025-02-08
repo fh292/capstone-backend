@@ -44,6 +44,7 @@ public class CardEntity {
     private Boolean isShared;
     private Boolean isPaused;
     private Boolean isClosed;
+    private Boolean isPinned;
 
     private String cardType;
     private String bankAccountNumber;
@@ -174,6 +175,14 @@ public class CardEntity {
 
     public void setClosed(Boolean closed) {
         isClosed = closed;
+    }
+
+    public Boolean getPinned() {
+        return isPinned;
+    }
+
+    public void setPinned(Boolean pinned) {
+        isPinned = pinned;
     }
 
     public String getCardType() {
