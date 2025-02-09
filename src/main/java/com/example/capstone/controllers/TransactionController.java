@@ -1,6 +1,7 @@
 package com.example.capstone.controllers;
 
 import com.example.capstone.bo.TransactionRequest;
+import com.example.capstone.bo.TransactionResponse;
 import com.example.capstone.services.TransactionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,8 +37,8 @@ public class TransactionController {
         return transactionRequest != null ? ResponseEntity.ok(transactionRequest) : ResponseEntity.notFound().build();
     }
     @PostMapping
-    public ResponseEntity<TransactionRequest> createTransaction(@RequestBody TransactionRequest transactionRequest) {
-        TransactionRequest createdTransaction = transactionService.createTransaction(transactionRequest);
+    public ResponseEntity<TransactionResponse> createTransaction(@RequestBody TransactionRequest transactionRequest) {
+        TransactionResponse createdTransaction = transactionService.createTransaction(transactionRequest);
         return createdTransaction != null ? ResponseEntity.ok(createdTransaction) : ResponseEntity.badRequest().build();
     }
     @DeleteMapping("/{id}")

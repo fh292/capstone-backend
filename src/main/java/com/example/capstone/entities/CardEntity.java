@@ -37,7 +37,7 @@ public class CardEntity {
     private String cardColor;
     private String cardIcon;
     private String merchantName;
-    private  String categoryName;
+    private String categoryName;
     private Double per_transaction;
     private Double per_day;
     private Double per_week;
@@ -293,4 +293,16 @@ public class CardEntity {
     }
 
     public void setTotal(Double total) {this.total = total;}
+
+    public Boolean getIsClosed() {
+        return isClosed;
+    }
+
+    public Boolean getIsPaused() {
+        return isPaused;
+    }
+
+    public Double getPerTransactionLimit() {
+        return per_transaction;
+    }
 }

@@ -3,6 +3,7 @@ package com.example.capstone.services;
 import com.example.capstone.authentication.entities.UserEntity;
 import com.example.capstone.authentication.repositories.UserRepository;
 import com.example.capstone.bo.TransactionRequest;
+import com.example.capstone.bo.TransactionResponse;
 import com.example.capstone.entities.CardEntity;
 import com.example.capstone.entities.TransactionEntity;
 import com.example.capstone.repositories.CardRepository;
@@ -39,7 +40,7 @@ private final UserRepository userRepository;
         return transactionEntity != null ? new TransactionRequest(transactionEntity) : null;
     }
 
-    public TransactionRequest createTransaction(TransactionRequest transactionRequest) {
+    public TransactionResponse createTransaction(TransactionRequest transactionRequest) {
         TransactionEntity transactionEntity = new TransactionEntity();
         transactionEntity.setMerchantName(transactionRequest.getMerchantName());
         transactionEntity.setType(transactionRequest.getType());
@@ -71,14 +72,14 @@ private final UserRepository userRepository;
             transactionEntity.setStatus("failed");
             transactionEntity.setDescription("Card is closed");
             transactionEntity = transactionRepository.save(transactionEntity);
-            return new TransactionRequest(transactionEntity);
+            return new TransactionResponse(transactionEntity);
         }
         // (B) Check if the card is paused
         if(card.getPaused()) {
             transactionEntity.setStatus("failed");
             transactionEntity.setDescription("Card is paused");
             transactionEntity = transactionRepository.save(transactionEntity);
-            return new TransactionRequest(transactionEntity);
+            return new TransactionResponse(transactionEntity);
         }
         //(C) Check the card type (Can either be CATEGORY_LOCKED, LOCATION_LOCKED, MERCHANT_LOCKED, or BURNER
         if(card.getCardType().equals("CATEGORY_LOCKED")) {
@@ -87,7 +88,7 @@ private final UserRepository userRepository;
                 transactionEntity.setStatus("failed");
                 transactionEntity.setDescription("Transaction is not within the category");
                 transactionEntity = transactionRepository.save(transactionEntity);
-                return new TransactionRequest(transactionEntity);
+                return new TransactionResponse(transactionEntity);
             }
         }
         else if(card.getCardType().equals("LOCATION_LOCKED")) {
@@ -97,7 +98,7 @@ private final UserRepository userRepository;
                 transactionEntity.setStatus("success");
                 transactionEntity.setDescription("Transaction is within the location");
                 transactionEntity = transactionRepository.save(transactionEntity);
-                return new TransactionRequest(transactionEntity);
+                return new TransactionResponse(transactionEntity);
 //            }
         }
         else if(card.getCardType().equals("MERCHANT_LOCKED")) {
@@ -106,7 +107,7 @@ private final UserRepository userRepository;
                 transactionEntity.setStatus("failed");
                 transactionEntity.setDescription("Transaction is not within the merchant");
                 transactionEntity = transactionRepository.save(transactionEntity);
-                return new TransactionRequest(transactionEntity);
+                return new TransactionResponse(transactionEntity);
             }
         }
         else if(card.getCardType().equals("BURNER")) {
@@ -115,14 +116,14 @@ private final UserRepository userRepository;
                 transactionEntity.setStatus("failed");
                 transactionEntity.setDescription("Transaction is not within the spending limit");
                 transactionEntity = transactionRepository.save(transactionEntity);
-                return new TransactionRequest(transactionEntity);
+                return new TransactionResponse(transactionEntity);
             }
         }
         else {
             transactionEntity.setStatus("failed");
             transactionEntity.setDescription("Card type is invalid");
             transactionEntity = transactionRepository.save(transactionEntity);
-            return new TransactionRequest(transactionEntity);
+            return new TransactionResponse(transactionEntity);
         }
         // (G) Check for spend limits
         if(card.getPer_transaction() != null) {
@@ -130,7 +131,7 @@ private final UserRepository userRepository;
                 transactionEntity.setStatus("failed");
                 transactionEntity.setDescription("Transaction is not within the per transaction limit");
                 transactionEntity = transactionRepository.save(transactionEntity);
-                return new TransactionRequest(transactionEntity);
+                return new TransactionResponse(transactionEntity);
             }
             //(H) Update the spent amount on the card
             card.setRemainingLimit(card.getRemainingLimit() - transactionEntity.getAmount());
@@ -143,7 +144,7 @@ private final UserRepository userRepository;
         }
         transactionEntity.setStatus("success");
         transactionEntity = transactionRepository.save(transactionEntity);
-        return new TransactionRequest(transactionEntity);
+        return new TransactionResponse(transactionEntity);
     }
 
     public void deleteTransaction(Long id) {

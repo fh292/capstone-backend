@@ -1,5 +1,6 @@
 package com.example.capstone.entities;
 
+import ch.qos.logback.classic.model.LoggerModel;
 import com.example.capstone.authentication.entities.UserEntity;
 import jakarta.persistence.*;
 
@@ -107,4 +108,6 @@ public class TransactionEntity {
     public void setDescription(String description) {
         this.description = description;
     }
+
+
 }
