@@ -37,13 +37,13 @@ public class CardEntity {
     private String cardColor;
     private String cardIcon;
     private String merchantName;
-    private String categoryName;
+    private  String categoryName;
     private Double per_transaction;
     private Double per_day;
     private Double per_week;
     private Double per_month;
     private Double per_year;
-    private Double total;
+    private  Double total;
 
     @OneToMany(mappedBy = "card")
     private List<TransactionEntity> transaction;
@@ -216,7 +216,7 @@ public class CardEntity {
         this.merchantName = merchantName;
     }
 
-    public String getCategoryName() {
+    public  String getCategoryName() {
         return categoryName;
     }
 
@@ -248,7 +248,7 @@ public class CardEntity {
         this.user = user;
     }
 
-    public Double getPer_transaction() {
+    public  Double getPer_transaction() {
         return per_transaction;
     }
 
@@ -288,11 +288,9 @@ public class CardEntity {
         this.per_year = per_year;
     }
 
-    public Double getTotal() {
+    public  Double getTotal() {
         return total;
     }
 
-    public void setTotal(Double total) {
-        this.total = total;
-    }
+    public void setTotal(Double total) {this.total = total;}
 }
