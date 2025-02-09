@@ -26,6 +26,11 @@ public class CardResponse {
     protected Boolean isPaused;
     protected Boolean isClosed;
     protected Boolean isPinned;
+    protected Double totalSpent;
+    protected Double dailySpent;
+    protected Double weeklySpent;
+    protected Double monthlySpent;
+    protected Double yearlySpent;
 
     public CardResponse(CardEntity card) {
         this.id = card.getId();
@@ -48,6 +53,37 @@ public class CardResponse {
         this.isPaused = card.getPaused();
         this.isClosed = card.getClosed();
         this.isPinned = card.getPinned();
+
+        this.totalSpent = card.getTransaction().stream()
+                .filter(t -> "APPROVED".equals(t.getStatus()))
+                .mapToDouble(t -> t.getAmount())
+                .sum();
+
+        LocalDateTime now = LocalDateTime.now();
+
+        this.dailySpent = card.getTransaction().stream()
+                .filter(t -> "APPROVED".equals(t.getStatus()))
+                .filter(t -> t.getCreatedAt().isAfter(now.minusDays(1)))
+                .mapToDouble(t -> t.getAmount())
+                .sum();
+
+        this.weeklySpent = card.getTransaction().stream()
+                .filter(t -> "APPROVED".equals(t.getStatus()))
+                .filter(t -> t.getCreatedAt().isAfter(now.minusWeeks(1)))
+                .mapToDouble(t -> t.getAmount())
+                .sum();
+
+        this.monthlySpent = card.getTransaction().stream()
+                .filter(t -> "APPROVED".equals(t.getStatus()))
+                .filter(t -> t.getCreatedAt().isAfter(now.minusMonths(1)))
+                .mapToDouble(t -> t.getAmount())
+                .sum();
+
+        this.yearlySpent = card.getTransaction().stream()
+                .filter(t -> "APPROVED".equals(t.getStatus()))
+                .filter(t -> t.getCreatedAt().isAfter(now.minusYears(1)))
+                .mapToDouble(t -> t.getAmount())
+                .sum();
     }
 
     public CardResponse() {
@@ -136,5 +172,25 @@ public class CardResponse {
 
     public void setPinned(Boolean pinned) {
         isPinned = pinned;
+    }
+
+    public Double getTotalSpent() {
+        return totalSpent;
+    }
+
+    public Double getDailySpent() {
+        return dailySpent;
+    }
+
+    public Double getWeeklySpent() {
+        return weeklySpent;
+    }
+
+    public Double getMonthlySpent() {
+        return monthlySpent;
+    }
+
+    public Double getYearlySpent() {
+        return yearlySpent;
     }
 }

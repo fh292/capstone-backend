@@ -117,15 +117,67 @@ public class TransactionService {
             return "Card is paused";
         }
 
-        // Validate spending limits
+        // Validate total spending limit first
+        if (card.getTotal() != null) {
+            double totalSpent = calculateTotalSpending(card);
+            if (totalSpent + request.getAmount() > card.getTotal()) {
+                return "Transaction amount exceeds total card limit";
+            }
+        }
+
+        // Validate per-transaction limit
         if (card.getPer_transaction() != null && request.getAmount() > card.getPer_transaction()) {
             return "Transaction amount exceeds per-transaction limit";
         }
 
-        // Add more validations for daily, weekly, monthly limits
-        // This would require tracking spending over time periods
+        // Validate daily limit
+        if (card.getPer_day() != null) {
+            double dailySpent = calculateSpendingInPeriod(card, LocalDateTime.now().minusDays(1));
+            if (dailySpent + request.getAmount() > card.getPer_day()) {
+                return "Transaction amount exceeds daily limit";
+            }
+        }
+
+        // Validate weekly limit
+        if (card.getPer_week() != null) {
+            double weeklySpent = calculateSpendingInPeriod(card, LocalDateTime.now().minusWeeks(1));
+            if (weeklySpent + request.getAmount() > card.getPer_week()) {
+                return "Transaction amount exceeds weekly limit";
+            }
+        }
+
+        // Validate monthly limit
+        if (card.getPer_month() != null) {
+            double monthlySpent = calculateSpendingInPeriod(card, LocalDateTime.now().minusMonths(1));
+            if (monthlySpent + request.getAmount() > card.getPer_month()) {
+                return "Transaction amount exceeds monthly limit";
+            }
+        }
+
+        // Validate yearly limit
+        if (card.getPer_year() != null) {
+            double yearlySpent = calculateSpendingInPeriod(card, LocalDateTime.now().minusYears(1));
+            if (yearlySpent + request.getAmount() > card.getPer_year()) {
+                return "Transaction amount exceeds yearly limit";
+            }
+        }
 
         return null;
+    }
+
+    private double calculateTotalSpending(CardEntity card) {
+        return card.getTransaction().stream()
+                .filter(t -> "APPROVED".equals(t.getStatus()))
+                .mapToDouble(TransactionEntity::getAmount)
+                .sum();
+    }
+
+    private double calculateSpendingInPeriod(CardEntity card, LocalDateTime startTime) {
+        return card.getTransaction().stream()
+                .filter(t -> "APPROVED".equals(t.getStatus()))
+                .filter(t -> t.getCreatedAt().isAfter(startTime))
+                .mapToDouble(TransactionEntity::getAmount)
+                .sum();
     }
 
     private String validateCardByType(CardEntity card, TransactionRequest request) {

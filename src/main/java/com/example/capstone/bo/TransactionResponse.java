@@ -6,6 +6,7 @@ import com.example.capstone.entities.TransactionEntity;
 
 public class TransactionResponse {
     private Long id;
+    private Long cardId;
     private String merchant;
     private Double amount;
     private Boolean isRecurring;
@@ -21,6 +22,7 @@ public class TransactionResponse {
     public TransactionResponse(TransactionEntity entity) {
         if (entity != null) {
             this.id = entity.getId();
+            this.cardId = entity.getCard().getId();
             this.merchant = entity.getMerchant();
             this.amount = entity.getAmount();
             this.isRecurring = entity.getRecurring();
@@ -49,6 +51,14 @@ public class TransactionResponse {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getCardId() {
+        return cardId;
+    }
+
+    public void setCardId(Long cardId) {
+        this.cardId = cardId;
     }
 
     public String getMerchant() {
