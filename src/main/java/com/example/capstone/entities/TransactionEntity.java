@@ -30,7 +30,7 @@ public class TransactionEntity {
     @Column(nullable = false)
     private String status; // APPROVED, DECLINED
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(nullable = false)
