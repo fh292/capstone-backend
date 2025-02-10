@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -63,9 +64,12 @@ public class CardEntity {
     private Double total;
 
     @OneToMany(mappedBy = "card")
+    @JsonIgnoreProperties(value={"card"})
+    @JsonBackReference
     private List<TransactionEntity> transaction;
 
     @OneToMany(mappedBy = "card")
+    @JsonIgnoreProperties(value = {"card"})
     private List<SharedCardEntity> sharedCard;
 
     @ManyToOne(fetch = FetchType.LAZY)
