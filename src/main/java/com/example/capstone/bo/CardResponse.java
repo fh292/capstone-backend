@@ -2,6 +2,8 @@ package com.example.capstone.bo;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.example.capstone.entities.CardEntity;
 
@@ -54,35 +56,41 @@ public class CardResponse {
         this.isClosed = card.getClosed();
         this.isPinned = card.getPinned();
 
-        this.totalSpent = card.getTransaction().stream()
-                .filter(t -> "APPROVED".equals(t.getStatus()))
-                .mapToDouble(t -> t.getAmount())
+        // Safely get transactions list, default to empty list if null
+        List transactions = card.getTransaction();
+        if (transactions == null) {
+            transactions = new ArrayList<>();
+        }
+
+        this.totalSpent = ((List)transactions).stream()
+                .filter(t -> "APPROVED".equals(((com.example.capstone.entities.TransactionEntity)t).getStatus()))
+                .mapToDouble(t -> ((com.example.capstone.entities.TransactionEntity)t).getAmount())
                 .sum();
 
         LocalDateTime now = LocalDateTime.now();
 
-        this.dailySpent = card.getTransaction().stream()
-                .filter(t -> "APPROVED".equals(t.getStatus()))
-                .filter(t -> t.getCreatedAt().isAfter(now.minusDays(1)))
-                .mapToDouble(t -> t.getAmount())
+        this.dailySpent = ((List)transactions).stream()
+                .filter(t -> "APPROVED".equals(((com.example.capstone.entities.TransactionEntity)t).getStatus()))
+                .filter(t -> ((com.example.capstone.entities.TransactionEntity)t).getCreatedAt().isAfter(now.minusDays(1)))
+                .mapToDouble(t -> ((com.example.capstone.entities.TransactionEntity)t).getAmount())
                 .sum();
 
-        this.weeklySpent = card.getTransaction().stream()
-                .filter(t -> "APPROVED".equals(t.getStatus()))
-                .filter(t -> t.getCreatedAt().isAfter(now.minusWeeks(1)))
-                .mapToDouble(t -> t.getAmount())
+        this.weeklySpent = ((List)transactions).stream()
+                .filter(t -> "APPROVED".equals(((com.example.capstone.entities.TransactionEntity)t).getStatus()))
+                .filter(t -> ((com.example.capstone.entities.TransactionEntity)t).getCreatedAt().isAfter(now.minusWeeks(1)))
+                .mapToDouble(t -> ((com.example.capstone.entities.TransactionEntity)t).getAmount())
                 .sum();
 
-        this.monthlySpent = card.getTransaction().stream()
-                .filter(t -> "APPROVED".equals(t.getStatus()))
-                .filter(t -> t.getCreatedAt().isAfter(now.minusMonths(1)))
-                .mapToDouble(t -> t.getAmount())
+        this.monthlySpent = ((List)transactions).stream()
+                .filter(t -> "APPROVED".equals(((com.example.capstone.entities.TransactionEntity)t).getStatus()))
+                .filter(t -> ((com.example.capstone.entities.TransactionEntity)t).getCreatedAt().isAfter(now.minusMonths(1)))
+                .mapToDouble(t -> ((com.example.capstone.entities.TransactionEntity)t).getAmount())
                 .sum();
 
-        this.yearlySpent = card.getTransaction().stream()
-                .filter(t -> "APPROVED".equals(t.getStatus()))
-                .filter(t -> t.getCreatedAt().isAfter(now.minusYears(1)))
-                .mapToDouble(t -> t.getAmount())
+        this.yearlySpent = ((List)transactions).stream()
+                .filter(t -> "APPROVED".equals(((com.example.capstone.entities.TransactionEntity)t).getStatus()))
+                .filter(t -> ((com.example.capstone.entities.TransactionEntity)t).getCreatedAt().isAfter(now.minusYears(1)))
+                .mapToDouble(t -> ((com.example.capstone.entities.TransactionEntity)t).getAmount())
                 .sum();
     }
 

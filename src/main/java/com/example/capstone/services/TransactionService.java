@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.capstone.authentication.entities.UserEntity;
+import com.example.capstone.authentication.repositories.UserRepository;
 import com.example.capstone.bo.TransactionRequest;
 import com.example.capstone.bo.TransactionResponse;
 import com.example.capstone.entities.CardEntity;
@@ -19,11 +20,13 @@ import com.example.capstone.repositories.TransactionRepository;
 public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final CardRepository cardRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public TransactionService(TransactionRepository transactionRepository, CardRepository cardRepository) {
+    public TransactionService(TransactionRepository transactionRepository, CardRepository cardRepository, UserRepository userRepository) {
         this.transactionRepository = transactionRepository;
         this.cardRepository = cardRepository;
+        this.userRepository = userRepository;
     }
 
     public List<TransactionResponse> getAllTransactions() {
@@ -268,6 +271,18 @@ public class TransactionService {
         TransactionEntity transaction = createTransactionEntity(request, card);
         transaction.setStatus("APPROVED");
         transaction = transactionRepository.save(transaction);
+
+        // Update the user's current daily and monthly spend
+        UserEntity user = card.getUser();
+        if(user.getCurrentDailySpend() == null) {
+            user.setCurrentDailySpend(0.0);
+        }
+        if(user.getCurrentMonthlySpend() == null) {
+            user.setCurrentMonthlySpend(0.0);
+        }
+        user.setCurrentDailySpend(user.getCurrentDailySpend() + request.getAmount());
+        user.setCurrentMonthlySpend(user.getCurrentMonthlySpend() + request.getAmount());
+        userRepository.save(user);
 
         // If this is a burner card, close it after the first approved transaction
         if ("BURNER".equalsIgnoreCase(card.getCardType())) {
