@@ -1,67 +1,64 @@
-package com.example.capstone.entities;
+package com.example.capstone.bo;
 
 import java.time.LocalDateTime;
 
-import com.example.capstone.authentication.entities.UserEntity;
+import com.example.capstone.entities.TransactionEntity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-@Entity
-public class TransactionEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class TransactionResponse {
     private Long id;
-
-    @Column(nullable = false)
+    private Long cardId;
     private String merchant;
-
-    @Column(nullable = false)
     private Double amount;
-
-    @Column(nullable = false)
     private Boolean isRecurring;
-
-    @Column(nullable = false)
-    private String status; // APPROVED, DECLINED
-
-    @Column
+    private String status;
     private String description;
-
-    @Column(nullable = false)
     private String type;
-
-    @Column(nullable = false)
     private String category;
-
-    @Column(nullable = true)
     private Double longitude;
-
-    @Column(nullable = true)
     private Double latitude;
-
-    @Column(nullable = false)
     private LocalDateTime createdAt;
+    private String declineReason;
 
-    @ManyToOne
-    @JoinColumn(name = "card_id", nullable = false)
-    private CardEntity card;
+    public TransactionResponse(TransactionEntity entity) {
+        if (entity != null) {
+            this.id = entity.getId();
+            this.cardId = entity.getCard().getId();
+            this.merchant = entity.getMerchant();
+            this.amount = entity.getAmount();
+            this.isRecurring = entity.getRecurring();
+            this.status = entity.getStatus();
+            this.description = entity.getDescription();
+            this.type = entity.getType();
+            this.category = entity.getCategory();
+            this.longitude = entity.getLongitude();
+            this.latitude = entity.getLatitude();
+            this.createdAt = entity.getCreatedAt();
+        } else {
+            this.status = "DECLINED";
+        }
+    }
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;
+    public TransactionResponse(TransactionEntity entity, String declineReason) {
+        this(entity);
+        this.declineReason = declineReason;
+        this.status = "DECLINED";
+    }
 
+    // Getters and Setters
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getCardId() {
+        return cardId;
+    }
+
+    public void setCardId(Long cardId) {
+        this.cardId = cardId;
     }
 
     public String getMerchant() {
@@ -144,19 +141,11 @@ public class TransactionEntity {
         this.createdAt = createdAt;
     }
 
-    public CardEntity getCard() {
-        return card;
+    public String getDeclineReason() {
+        return declineReason;
     }
 
-    public void setCard(CardEntity card) {
-        this.card = card;
-    }
-
-    public UserEntity getUser() {
-        return user;
-    }
-
-    public void setUser(UserEntity user) {
-        this.user = user;
+    public void setDeclineReason(String declineReason) {
+        this.declineReason = declineReason;
     }
 }

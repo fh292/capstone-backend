@@ -97,7 +97,7 @@ public class CardRequest {
     }
 
     public Double getPer_transaction() {
-        return per_transaction != null ? per_transaction : 0.0;
+        return per_transaction;
     }
 
     public void setPer_transaction(Double per_transaction) {
@@ -105,7 +105,7 @@ public class CardRequest {
     }
 
     public Double getPer_day() {
-        return per_day != null ? per_day : 0.0;
+        return per_day;
     }
 
     public void setPer_day(Double per_day) {
@@ -113,7 +113,7 @@ public class CardRequest {
     }
 
     public Double getPer_week() {
-        return per_week != null ? per_week : 0.0;
+        return per_week;
     }
 
     public void setPer_week(Double per_week) {
@@ -121,7 +121,7 @@ public class CardRequest {
     }
 
     public Double getPer_month() {
-        return per_month != null ? per_month : 0.0;
+        return per_month;
     }
 
     public void setPer_month(Double per_month) {
@@ -129,7 +129,7 @@ public class CardRequest {
     }
 
     public Double getPer_year() {
-        return per_year != null ? per_year : 0.0;
+        return per_year;
     }
 
     public void setPer_year(Double per_year) {
@@ -137,7 +137,7 @@ public class CardRequest {
     }
 
     public Double getTotal() {
-        return total != null ? total : 0.0;
+        return total;
     }
 
     public void setTotal(Double total) {

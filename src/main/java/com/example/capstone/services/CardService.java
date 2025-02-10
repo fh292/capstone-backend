@@ -215,15 +215,15 @@ public class CardService {
             throw new IllegalArgumentException("Either amount must be provided or removeLimit must be true.");
         }
 
-        // Reset all limits to zero first
-        card.setPer_transaction(0.0);
-        card.setPer_day(0.0);
-        card.setPer_week(0.0);
-        card.setPer_month(0.0);
-        card.setPer_year(0.0);
-        card.setTotal(0.0);
+        // Reset all limits to null first
+        card.setPer_transaction(null);
+        card.setPer_day(null);
+        card.setPer_week(null);
+        card.setPer_month(null);
+        card.setPer_year(null);
+        card.setTotal(null);
 
-        // If we're removing the limit, we can return now since all limits are already zero
+        // If we're removing the limit, we can return now since all limits are already null
         if (request.getRemoveLimit()) {
             card.setLimitSetAt(LocalDateTime.now());
             return cardRepository.save(card);
