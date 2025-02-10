@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -53,7 +54,8 @@ public class UserEntity implements UserDetails {
     @Column
     private String profilePic;
 
-    @Column
+    @Column(nullable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @Column
@@ -61,6 +63,27 @@ public class UserEntity implements UserDetails {
 
     @Column
     private Long cardId;
+
+    @Column(nullable = false)
+    private Double monthlySpendLimit = 5000.0;
+
+    @Column(nullable = false)
+    private Double dailySpendLimit = 500.0;
+
+    @Column(nullable = false)
+    private Integer monthlyCardIssuanceLimit = 10;
+
+    @Column(nullable = false)
+    private Double currentMonthlySpend = 0.0;
+
+    @Column(nullable = false)
+    private Double currentDailySpend = 0.0;
+
+    @Column(nullable = false)
+    private Integer currentMonthCardIssuance = 0;
+
+    @Column(nullable = false)
+    private LocalDateTime lastSpendReset;
 
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonIgnoreProperties(value = { "user" })
@@ -240,6 +263,63 @@ public class UserEntity implements UserDetails {
     public void setDepartment(String department) {
         this.department = department;
     }
+
+    public Double getMonthlySpendLimit() {
+        return monthlySpendLimit;
+    }
+
+    public void setMonthlySpendLimit(Double monthlySpendLimit) {
+        this.monthlySpendLimit = monthlySpendLimit;
+    }
+
+    public Double getDailySpendLimit() {
+        return dailySpendLimit;
+    }
+
+    public void setDailySpendLimit(Double dailySpendLimit) {
+        this.dailySpendLimit = dailySpendLimit;
+    }
+
+    public Integer getMonthlyCardIssuanceLimit() {
+        return monthlyCardIssuanceLimit;
+    }
+
+    public void setMonthlyCardIssuanceLimit(Integer monthlyCardIssuanceLimit) {
+        this.monthlyCardIssuanceLimit = monthlyCardIssuanceLimit;
+    }
+
+    public Double getCurrentMonthlySpend() {
+        return currentMonthlySpend;
+    }
+
+    public void setCurrentMonthlySpend(Double currentMonthlySpend) {
+        this.currentMonthlySpend = currentMonthlySpend;
+    }
+
+    public Double getCurrentDailySpend() {
+        return currentDailySpend;
+    }
+
+    public void setCurrentDailySpend(Double currentDailySpend) {
+        this.currentDailySpend = currentDailySpend;
+    }
+
+    public Integer getCurrentMonthCardIssuance() {
+        return currentMonthCardIssuance;
+    }
+
+    public void setCurrentMonthCardIssuance(Integer currentMonthCardIssuance) {
+        this.currentMonthCardIssuance = currentMonthCardIssuance;
+    }
+
+    public LocalDateTime getLastSpendReset() {
+        return lastSpendReset;
+    }
+
+    public void setLastSpendReset(LocalDateTime lastSpendReset) {
+        this.lastSpendReset = lastSpendReset;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();

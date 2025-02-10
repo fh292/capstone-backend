@@ -1,12 +1,14 @@
 package com.example.capstone.bo;
 
-import com.example.capstone.authentication.entities.UserEntity;
-import com.example.capstone.entities.CardEntity;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+
+import com.example.capstone.authentication.entities.UserEntity;
+import com.example.capstone.entities.CardEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserResponse {
@@ -20,11 +22,22 @@ public class UserResponse {
     private String subscription;
     private String bankAccountNumber;
     private String cardId;
+    @JsonIgnore
     private List<CardEntity> cards;
     private String gender;
     private LocalDate dateOfBirth;
     private String profilePic;
     private String role = "ROLE_USER";
+    private Boolean isActive;
+    private LocalDateTime createdAt;
+    private Double monthlySpendLimit;
+    private Double dailySpendLimit;
+    private Integer monthlyCardIssuanceLimit;
+    private Double currentMonthlySpend;
+    private Double currentDailySpend;
+    private Integer currentMonthCardIssuance;
+    private LocalDateTime lastSpendReset;
+    private Integer activeCardsCount;
 
     public UserResponse() {}
 
@@ -44,6 +57,21 @@ public class UserResponse {
         this.dateOfBirth = userEntity.getDateOfBirth();
         this.profilePic = userEntity.getProfilePic();
         this.role = userEntity.getRole();
+        this.isActive = userEntity.IsActive();
+        this.createdAt = userEntity.getCreatedAt();
+        this.monthlySpendLimit = userEntity.getMonthlySpendLimit();
+        this.dailySpendLimit = userEntity.getDailySpendLimit();
+        this.monthlyCardIssuanceLimit = userEntity.getMonthlyCardIssuanceLimit();
+        this.currentMonthlySpend = userEntity.getCurrentMonthlySpend();
+        this.currentDailySpend = userEntity.getCurrentDailySpend();
+        this.currentMonthCardIssuance = userEntity.getCurrentMonthCardIssuance();
+        this.lastSpendReset = userEntity.getLastSpendReset();
+
+        // Calculate active cards count
+        this.activeCardsCount = userEntity.getCards() == null ? 0 :
+            (int) userEntity.getCards().stream()
+                .filter(card -> !card.getPaused() && !card.getClosed())
+                .count();
     }
 
     public Long getId() { return id; }
@@ -94,5 +122,77 @@ public class UserResponse {
 
     public void setCards(List<CardEntity> cards) {
         this.cards = cards;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean active) {
+        isActive = active;
+    }
+
+    public Double getMonthlySpendLimit() {
+        return monthlySpendLimit;
+    }
+
+    public void setMonthlySpendLimit(Double monthlySpendLimit) {
+        this.monthlySpendLimit = monthlySpendLimit;
+    }
+
+    public Double getDailySpendLimit() {
+        return dailySpendLimit;
+    }
+
+    public void setDailySpendLimit(Double dailySpendLimit) {
+        this.dailySpendLimit = dailySpendLimit;
+    }
+
+    public Integer getMonthlyCardIssuanceLimit() {
+        return monthlyCardIssuanceLimit;
+    }
+
+    public void setMonthlyCardIssuanceLimit(Integer monthlyCardIssuanceLimit) {
+        this.monthlyCardIssuanceLimit = monthlyCardIssuanceLimit;
+    }
+
+    public Double getCurrentMonthlySpend() {
+        return currentMonthlySpend;
+    }
+
+    public void setCurrentMonthlySpend(Double currentMonthlySpend) {
+        this.currentMonthlySpend = currentMonthlySpend;
+    }
+
+    public Double getCurrentDailySpend() {
+        return currentDailySpend;
+    }
+
+    public void setCurrentDailySpend(Double currentDailySpend) {
+        this.currentDailySpend = currentDailySpend;
+    }
+
+    public Integer getCurrentMonthCardIssuance() {
+        return currentMonthCardIssuance;
+    }
+
+    public void setCurrentMonthCardIssuance(Integer currentMonthCardIssuance) {
+        this.currentMonthCardIssuance = currentMonthCardIssuance;
+    }
+
+    public LocalDateTime getLastSpendReset() {
+        return lastSpendReset;
+    }
+
+    public void setLastSpendReset(LocalDateTime lastSpendReset) {
+        this.lastSpendReset = lastSpendReset;
+    }
+
+    public Integer getActiveCardsCount() {
+        return activeCardsCount;
+    }
+
+    public void setActiveCardsCount(Integer activeCardsCount) {
+        this.activeCardsCount = activeCardsCount;
     }
 }

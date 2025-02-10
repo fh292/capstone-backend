@@ -2,13 +2,19 @@ package com.example.capstone.bo;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
 public class CardRequest {
+    @Size(min = 1, max = 50)
     private String cardName;
     private String cardType;
     private String bankAccountNumber;
     private Double spendingLimit;
     private LocalDate expiryDate;
+    @Pattern(regexp = "^#([A-Fa-f0-9]{6})$")
     private String cardColor;
+    @Pattern(regexp = "^[\\p{Emoji}]$")
     private String cardIcon;
     private Boolean isShared;
     private Double per_transaction;
@@ -91,7 +97,7 @@ public class CardRequest {
     }
 
     public Double getPer_transaction() {
-        return per_transaction;
+        return per_transaction != null ? per_transaction : 0.0;
     }
 
     public void setPer_transaction(Double per_transaction) {
@@ -99,7 +105,7 @@ public class CardRequest {
     }
 
     public Double getPer_day() {
-        return per_day;
+        return per_day != null ? per_day : 0.0;
     }
 
     public void setPer_day(Double per_day) {
@@ -107,7 +113,7 @@ public class CardRequest {
     }
 
     public Double getPer_week() {
-        return per_week;
+        return per_week != null ? per_week : 0.0;
     }
 
     public void setPer_week(Double per_week) {
@@ -115,7 +121,7 @@ public class CardRequest {
     }
 
     public Double getPer_month() {
-        return per_month;
+        return per_month != null ? per_month : 0.0;
     }
 
     public void setPer_month(Double per_month) {
@@ -123,7 +129,7 @@ public class CardRequest {
     }
 
     public Double getPer_year() {
-        return per_year;
+        return per_year != null ? per_year : 0.0;
     }
 
     public void setPer_year(Double per_year) {
@@ -131,7 +137,7 @@ public class CardRequest {
     }
 
     public Double getTotal() {
-        return total;
+        return total != null ? total : 0.0;
     }
 
     public void setTotal(Double total) {
