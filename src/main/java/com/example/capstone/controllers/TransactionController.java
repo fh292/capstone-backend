@@ -2,21 +2,18 @@ package com.example.capstone.controllers;
 
 import java.util.List;
 
+import com.example.capstone.entities.TransactionEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.capstone.authentication.entities.UserEntity;
 import com.example.capstone.bo.TransactionRequest;
 import com.example.capstone.bo.TransactionResponse;
 import com.example.capstone.services.TransactionService;
 import com.example.capstone.services.UserService;
+import org.springframework.data.domain.Page;
+
 
 @RequestMapping("/transaction")
 @RestController
@@ -88,5 +85,14 @@ public class TransactionController {
     public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
         transactionService.deleteTransaction(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<Page<TransactionEntity>> getAllTransactions(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<TransactionEntity> transactions = transactionService.getAllTransactionsPg(page, size);
+        return ResponseEntity.ok(transactions);
     }
 }

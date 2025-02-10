@@ -3,6 +3,9 @@ package com.example.capstone.services;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,13 @@ public class TransactionService {
         this.transactionRepository = transactionRepository;
         this.cardRepository = cardRepository;
         this.userRepository = userRepository;
+    }
+
+    public Page<TransactionEntity> getAllTransactionsPg(int page, int size) {
+        if (size <= 0) size = 10;
+        if (page < 0) page = 0;
+        Pageable pageable = PageRequest.of(page, size);
+        return transactionRepository.findAll(pageable);
     }
 
     public List<TransactionResponse> getAllTransactions() {
