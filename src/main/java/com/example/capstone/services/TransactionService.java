@@ -93,7 +93,7 @@ private final UserRepository userRepository;
         }
         else if(card.getCardType().equals("LOCATION_LOCKED")) {
             // Check if the transaction is within the location
-            // TODO: implement locaiton check
+            // TODO: implement location check
 //            if(!CardEntity.isWithinLocation(transactionEntity.getLatitude(), transactionEntity.getLongitude(), transactionEntity.getRadius())) {
                 transactionEntity.setStatus("success");
                 transactionEntity.setDescription("Transaction is within the location");
