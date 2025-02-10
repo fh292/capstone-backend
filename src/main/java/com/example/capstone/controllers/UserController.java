@@ -1,6 +1,7 @@
 package com.example.capstone.controllers;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.springframework.http.HttpStatus;
@@ -82,6 +83,17 @@ public class UserController {
                 .orElseThrow(() -> new NoSuchElementException("User not found"));
         List<CardResponse> cards = cardService.getUserCards(user);
         return ResponseEntity.ok(cards);
+    }
+
+    @GetMapping("/me/card-issuance-limit")
+    public ResponseEntity<Object> getCardIssuanceLimit(Authentication authentication) {
+        UserEntity user = userService.findByEmail(authentication.getName())
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+
+        return ResponseEntity.ok(Map.of(
+            "monthlyLimit", user.getMonthlyCardIssuanceLimit(),
+            "currentMonthUsage", user.getCurrentMonthCardIssuance()
+        ));
     }
 
 }
