@@ -1,7 +1,9 @@
 package com.example.capstone.services;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -318,5 +320,33 @@ public class TransactionService {
         transaction.setCard(card);
         transaction.setUser(card.getUser()); // Set the user from the card
         return transaction;
+    }
+
+    public Map<String, Object> analyzeTransactions(UserEntity user) {
+        List<TransactionEntity> transactions = transactionRepository.findByUser(user);
+
+        // Group transactions by merchant
+        Map<String, Long> merchantFrequency = transactions.stream()
+                .collect(Collectors.groupingBy(TransactionEntity::getMerchant, Collectors.counting()));
+
+        // Group transactions by category
+        Map<String, Double> categorySpending = transactions.stream()
+                .collect(Collectors.groupingBy(TransactionEntity::getCategory, Collectors.summingDouble(TransactionEntity::getAmount)));
+
+        // Find the most-used merchant and highest spending category
+        String mostUsedMerchant = merchantFrequency.entrySet().stream()
+                .max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse("Unknown");
+
+        String highestSpendingCategory = categorySpending.entrySet().stream()
+                .max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse("Unknown");
+
+        // Prepare data for AI suggestion
+        Map<String, Object> insights = new HashMap<>();
+        insights.put("mostUsedMerchant", mostUsedMerchant);
+        insights.put("highestSpendingCategory", highestSpendingCategory);
+        insights.put("merchantFrequency", merchantFrequency);
+        insights.put("categorySpending", categorySpending);
+
+        return insights;
     }
 }
