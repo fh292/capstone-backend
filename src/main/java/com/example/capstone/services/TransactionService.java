@@ -5,11 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.capstone.authentication.entities.UserEntity;
@@ -26,12 +26,18 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final CardRepository cardRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Autowired
-    public TransactionService(TransactionRepository transactionRepository, CardRepository cardRepository, UserRepository userRepository) {
+    public TransactionService(
+            TransactionRepository transactionRepository,
+            CardRepository cardRepository,
+            UserRepository userRepository,
+            NotificationService notificationService) {
         this.transactionRepository = transactionRepository;
         this.cardRepository = cardRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     public Page<TransactionEntity> getAllTransactionsPg(int page, int size) {
@@ -276,6 +282,26 @@ public class TransactionService {
         TransactionEntity transaction = createTransactionEntity(request, card);
         transaction.setStatus("DECLINED");
         transaction = transactionRepository.save(transaction);
+
+        // Send notification for declined transaction
+        notificationService.sendNotification(
+            card.getUser(),
+            "Transaction Declined",
+            String.format("Your transaction of %.2f KWD at %s was declined: %s",
+                request.getAmount(),
+                request.getMerchant(),
+                reason
+            ),
+            Map.of(
+                "transactionId", transaction.getId(),
+                "cardId", card.getId(),
+                "amount", request.getAmount(),
+                "merchant", request.getMerchant(),
+                "status", "DECLINED",
+                "reason", reason
+            )
+        );
+
         return new TransactionResponse(transaction, reason);
     }
 
@@ -295,6 +321,23 @@ public class TransactionService {
         user.setCurrentDailySpend(user.getCurrentDailySpend() + request.getAmount());
         user.setCurrentMonthlySpend(user.getCurrentMonthlySpend() + request.getAmount());
         userRepository.save(user);
+
+        // Send notification for approved transaction
+        notificationService.sendNotification(
+            user,
+            "Transaction Approved",
+            String.format("Your transaction of KD %.2f at %s was approved",
+                request.getAmount(),
+                request.getMerchant()
+            ),
+            Map.of(
+                "transactionId", transaction.getId(),
+                "cardId", card.getId(),
+                "amount", request.getAmount(),
+                "merchant", request.getMerchant(),
+                "status", "APPROVED"
+            )
+        );
 
         // If this is a burner card, close it after the first approved transaction
         if ("BURNER".equalsIgnoreCase(card.getCardType())) {

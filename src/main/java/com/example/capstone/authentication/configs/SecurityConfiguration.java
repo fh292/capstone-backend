@@ -30,7 +30,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                // .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // 1) Permitted endpoints
@@ -40,7 +40,8 @@ public class SecurityConfiguration {
                                 "/swagger-resources/**",
                                 "/webjars/**",
                                 "/auth/**",
-                                "/transaction/process" // Allow transaction processing without auth
+                                "/transaction/process", // Allow transaction processing without auth
+                                "/ws/**"
                         ).permitAll()
 
                         // 2) Everything else
