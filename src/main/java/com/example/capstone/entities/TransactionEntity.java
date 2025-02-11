@@ -1,5 +1,6 @@
 package com.example.capstone.entities;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import com.example.capstone.authentication.entities.UserEntity;
@@ -13,7 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 @Entity
-public class TransactionEntity {
+public class TransactionEntity  implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

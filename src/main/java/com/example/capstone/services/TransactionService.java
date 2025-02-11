@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.capstone.authentication.entities.UserEntity;
@@ -28,7 +29,7 @@ public class TransactionService {
         this.cardRepository = cardRepository;
         this.userRepository = userRepository;
     }
-
+    @Cacheable(value = "transactions",key = "#id")
     public List<TransactionResponse> getAllTransactions() {
         return transactionRepository.findAll().stream()
                 .map(TransactionResponse::new)
@@ -41,6 +42,7 @@ public class TransactionService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "transactions",key = "#user.id")
     public List<TransactionResponse> getAuthenticatedUserTransactions(UserEntity user) {
         return transactionRepository.findByUser(user).stream()
                 .map(TransactionResponse::new)

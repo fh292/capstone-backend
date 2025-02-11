@@ -1,10 +1,11 @@
 package com.example.capstone.bo;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import com.example.capstone.entities.TransactionEntity;
 
-public class TransactionResponse {
+public class TransactionResponse  implements Serializable {
     private Long id;
     private Long cardId;
     private String merchant;
