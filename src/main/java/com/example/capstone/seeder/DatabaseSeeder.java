@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.example.capstone.entities.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Component
@@ -42,7 +43,7 @@ public class DatabaseSeeder {
     }
 
     private void seedUsersTable() {
-        String sql = "SELECT COUNT(*) FROM users WHERE email = 'j@me.com'";
+        String sql = "SELECT COUNT(*) FROM \"user_entity\" WHERE email = 'farah@cvrd.com'";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class);
 
         if (count == null || count == 0) {
@@ -59,6 +60,7 @@ public class DatabaseSeeder {
             user.setDateOfBirth(LocalDate.parse("1990-01-01"));
             user.setProfilePic("https://example.com/profile.jpg");
             user.setRole("USER");
+            user.setLastSpendReset(LocalDateTime.now());
 
             userRepository.save(user);
             logger.info("Users table seeded.");
@@ -68,8 +70,10 @@ public class DatabaseSeeder {
     }
 
     private void seedCardsTable() {
-        String sql = "SELECT COUNT(*) FROM cards";
+        String sql = "SELECT COUNT(*) FROM \"card_entity\"";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class);
+        UserEntity user = userRepository.findByEmail("farah@cvrd.com")
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (count == null || count == 0) {
             CardEntity card1 = new CardEntity();
@@ -77,15 +81,15 @@ public class DatabaseSeeder {
             card1.setCardName("Farah's Visa");
             card1.setCardType("Visa");
             card1.setExpiryDate(LocalDate.of(2025, 12, 31));
-            card1.setBankAccountNumber("9876543210");
+            card1.setBankAccountNumber("1234567890");
             card1.setCvv("123");
             card1.setSpendingLimit(5000.0);
             card1.setRemainingLimit(5000.0);
-            card1.setIsShared(false);
-            card1.setIsPaused(false);
-            card1.setIsClosed(false);
+//            card1.setIsShared(false);
+//            card1.setIsPaused(false);
+//            card1.setIsClosed(false);
+            card1.setUser(user);
             card1.setCreatedAt(LocalDateTime.now());
-
             cardRepository.save(card1);
             logger.info("Cards table seeded.");
         } else {
@@ -94,14 +98,15 @@ public class DatabaseSeeder {
     }
 
     private void seedSharedCardsTable() {
-        String sql = "SELECT COUNT(*) FROM shared_cards";
+        String sql = "SELECT COUNT(*) FROM \"shared_card_entity\"";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class);
-
+        UserEntity user = userRepository.findByEmail("farah@cvrd.com")
+                .orElseThrow(() -> new RuntimeException("User not found"));
         if (count == null || count == 0) {
             SharedCardEntity sharedCard = new SharedCardEntity();
             sharedCard.setSharedAt(LocalDateTime.now());
             sharedCard.setExpiresAt(LocalDateTime.now().plusDays(30));
-
+            sharedCard.setUser(user);
             sharedCardRepository.save(sharedCard);
             logger.info("Shared Cards table seeded.");
         } else {
@@ -110,7 +115,7 @@ public class DatabaseSeeder {
     }
 
     private void seedTransactionsTable() {
-        String sql = "SELECT COUNT(*) FROM transactions";
+        String sql = "SELECT COUNT(*) FROM \"transaction_entity\"";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class);
 
         if (count == null || count == 0) {
@@ -118,7 +123,7 @@ public class DatabaseSeeder {
             transaction.setAmount(100.50);
             transaction.setMerchant("Amazon");
             transaction.setStatus("APPROVED");
-            transaction.setIsRecurring(false);
+//            transaction.setIsRecurring(false);
             transaction.setDescription("Online Purchase");
             transaction.setType("DEBIT");
             transaction.setCategory("Shopping");

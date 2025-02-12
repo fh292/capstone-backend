@@ -96,7 +96,7 @@ public class UserEntity implements UserDetails {
     @Column
     private String notificationToken;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean notificationEnabled = true;
 
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER)
