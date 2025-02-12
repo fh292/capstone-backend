@@ -48,6 +48,13 @@ public class TransactionService {
         return transactionRepository.findAll(pageable);
     }
 
+    public Page<TransactionEntity> getAllTransactionsPg(int page, int size) {
+        if (size <= 0) size = 10;
+        if (page < 0) page = 0;
+        Pageable pageable = PageRequest.of(page, size);
+        return transactionRepository.findAll(pageable);
+    }
+
     @Cacheable(value = "transactions",key = "#id")
     public List<TransactionResponse> getAllTransactions() {
         return transactionRepository.findAll().stream()
