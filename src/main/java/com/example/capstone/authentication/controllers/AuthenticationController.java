@@ -1,29 +1,81 @@
 package com.example.capstone.authentication.controllers;
 
-import com.example.capstone.authentication.bo.*;
-import com.example.capstone.authentication.bo.RegisterUserRequest;
-import com.example.capstone.authentication.entities.UserEntity;
-import com.example.capstone.authentication.services.AuthenticationService;
-import com.example.capstone.authentication.services.JwtService;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
+import com.example.capstone.authentication.bo.LoginRequest;
+import com.example.capstone.authentication.bo.LoginResponse;
+import com.example.capstone.authentication.bo.RegisterAdminRequest;
+import com.example.capstone.authentication.bo.RegisterAdminResponse;
+import com.example.capstone.authentication.bo.RegisterUserRequest;
+import com.example.capstone.authentication.bo.RegisterUserResponse;
+import com.example.capstone.authentication.entities.UserEntity;
+import com.example.capstone.authentication.services.AuthenticationService;
+import com.example.capstone.authentication.services.JwtService;
 
 @RequestMapping("/auth")
 @RestController
 public class AuthenticationController {
     private final JwtService jwtService;
-
     private final AuthenticationService authenticationService;
+    private final UserDetailsService userDetailsService;
 
-    public AuthenticationController(JwtService jwtService, AuthenticationService authenticationService) {
+    public AuthenticationController(
+            JwtService jwtService,
+            AuthenticationService authenticationService,
+            UserDetailsService userDetailsService) {
         this.jwtService = jwtService;
         this.authenticationService = authenticationService;
+        this.userDetailsService = userDetailsService;
+    }
+
+    @PostMapping("/validate-token")
+    public ResponseEntity<Map<String, Object>> validateToken(@RequestHeader("Authorization") String authHeader) {
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("valid", false, "error", "Invalid token format"));
+            }
+
+            String token = authHeader.substring(7);
+            String userEmail = jwtService.extractUsername(token);
+
+            if (userEmail == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("valid", false, "error", "Invalid token"));
+            }
+
+            UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+            boolean isValid = jwtService.isTokenValid(token, userDetails);
+
+            if (!isValid) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("valid", false, "error", "Token is expired or invalid"));
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("valid", true);
+            response.put("email", userEmail);
+            response.put("role", jwtService.extractRole(token));
+            response.put("id", jwtService.extractId(token));
+            response.put("expiresIn", jwtService.getExpirationTime());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("valid", false, "error", e.getMessage()));
+        }
     }
 
     @PostMapping("/signup-user")
