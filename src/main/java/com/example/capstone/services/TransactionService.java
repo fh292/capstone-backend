@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -47,6 +48,14 @@ public class TransactionService {
         return transactionRepository.findAll(pageable);
     }
 
+    public Page<TransactionEntity> getAllTransactionsPg(int page, int size) {
+        if (size <= 0) size = 10;
+        if (page < 0) page = 0;
+        Pageable pageable = PageRequest.of(page, size);
+        return transactionRepository.findAll(pageable);
+    }
+
+    @Cacheable(value = "transactions",key = "#id")
     public List<TransactionResponse> getAllTransactions() {
         return transactionRepository.findAll().stream()
                 .map(TransactionResponse::new)
@@ -59,6 +68,7 @@ public class TransactionService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "transactions",key = "#user.id")
     public List<TransactionResponse> getAuthenticatedUserTransactions(UserEntity user) {
         return transactionRepository.findByUser(user).stream()
                 .map(TransactionResponse::new)
