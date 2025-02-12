@@ -33,6 +33,7 @@ public class TransactionResponse {
             this.longitude = entity.getLongitude();
             this.latitude = entity.getLatitude();
             this.createdAt = entity.getCreatedAt();
+            this.declineReason = entity.getDeclineReason();
         } else {
             this.status = "DECLINED";
         }

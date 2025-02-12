@@ -3,9 +3,9 @@ package com.example.capstone.entities;
 import java.time.LocalDateTime;
 
 import com.example.capstone.authentication.entities.UserEntity;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -34,6 +34,9 @@ public class TransactionEntity {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(columnDefinition = "TEXT")
+    private String declineReason;
 
     @Column(nullable = false)
     private String type;
@@ -107,6 +110,14 @@ public class TransactionEntity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getDeclineReason() {
+        return declineReason;
+    }
+
+    public void setDeclineReason(String declineReason) {
+        this.declineReason = declineReason;
     }
 
     public String getType() {

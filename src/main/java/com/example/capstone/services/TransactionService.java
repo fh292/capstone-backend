@@ -119,6 +119,34 @@ public class TransactionService {
         transactionRepository.deleteById(id);
     }
 
+    public Map<String, Object> analyzeTransactions(UserEntity user) {
+        List<TransactionEntity> transactions = transactionRepository.findByUser(user);
+
+        // Group transactions by merchant
+        Map<String, Long> merchantFrequency = transactions.stream()
+                .collect(Collectors.groupingBy(TransactionEntity::getMerchant, Collectors.counting()));
+
+        // Group transactions by category
+        Map<String, Double> categorySpending = transactions.stream()
+                .collect(Collectors.groupingBy(TransactionEntity::getCategory, Collectors.summingDouble(TransactionEntity::getAmount)));
+
+        // Find the most-used merchant and highest spending category
+        String mostUsedMerchant = merchantFrequency.entrySet().stream()
+                .max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse("Unknown");
+
+        String highestSpendingCategory = categorySpending.entrySet().stream()
+                .max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse("Unknown");
+
+        // Prepare data for AI suggestion
+        Map<String, Object> insights = new HashMap<>();
+        insights.put("mostUsedMerchant", mostUsedMerchant);
+        insights.put("highestSpendingCategory", highestSpendingCategory);
+        insights.put("merchantFrequency", merchantFrequency);
+        insights.put("categorySpending", categorySpending);
+
+        return insights;
+    }
+
     private String validateCard(CardEntity card, TransactionRequest request) {
         // Validate card is not expired
         if (card.getExpiryDate().isBefore(LocalDateTime.now().toLocalDate())) {
@@ -281,13 +309,15 @@ public class TransactionService {
     private TransactionResponse createDeclinedTransaction(TransactionRequest request, CardEntity card, String reason) {
         TransactionEntity transaction = createTransactionEntity(request, card);
         transaction.setStatus("DECLINED");
+        transaction.setDeclineReason(reason);
         transaction = transactionRepository.save(transaction);
 
         // Send notification for declined transaction
-        notificationService.sendNotification(
-            card.getUser(),
-            "Transaction Declined",
-            String.format("Your transaction of %.2f KWD at %s was declined: %s",
+        try {
+            notificationService.sendNotification(
+                card.getUser(),
+                "Transaction Declined",
+            String.format("Payment of KD %.2f at %s was declined. %s",
                 request.getAmount(),
                 request.getMerchant(),
                 reason
@@ -299,8 +329,11 @@ public class TransactionService {
                 "merchant", request.getMerchant(),
                 "status", "DECLINED",
                 "reason", reason
-            )
-        );
+                )
+            );
+        } catch (Exception e) {
+            System.out.println("Error sending notification: " + e.getMessage());
+        }
 
         return new TransactionResponse(transaction, reason);
     }
@@ -323,10 +356,11 @@ public class TransactionService {
         userRepository.save(user);
 
         // Send notification for approved transaction
-        notificationService.sendNotification(
-            user,
-            "Transaction Approved",
-            String.format("Your transaction of KD %.2f at %s was approved",
+        try {
+            notificationService.sendNotification(
+                user,
+                "Transaction Approved",
+                String.format("Payment of KD %.2f at %s was approved.",
                 request.getAmount(),
                 request.getMerchant()
             ),
@@ -336,8 +370,11 @@ public class TransactionService {
                 "amount", request.getAmount(),
                 "merchant", request.getMerchant(),
                 "status", "APPROVED"
-            )
-        );
+                )
+            );
+        } catch (Exception e) {
+            System.out.println("Error sending notification: " + e.getMessage());
+        }
 
         // If this is a burner card, close it after the first approved transaction
         if ("BURNER".equalsIgnoreCase(card.getCardType())) {
@@ -363,33 +400,5 @@ public class TransactionService {
         transaction.setCard(card);
         transaction.setUser(card.getUser()); // Set the user from the card
         return transaction;
-    }
-
-    public Map<String, Object> analyzeTransactions(UserEntity user) {
-        List<TransactionEntity> transactions = transactionRepository.findByUser(user);
-
-        // Group transactions by merchant
-        Map<String, Long> merchantFrequency = transactions.stream()
-                .collect(Collectors.groupingBy(TransactionEntity::getMerchant, Collectors.counting()));
-
-        // Group transactions by category
-        Map<String, Double> categorySpending = transactions.stream()
-                .collect(Collectors.groupingBy(TransactionEntity::getCategory, Collectors.summingDouble(TransactionEntity::getAmount)));
-
-        // Find the most-used merchant and highest spending category
-        String mostUsedMerchant = merchantFrequency.entrySet().stream()
-                .max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse("Unknown");
-
-        String highestSpendingCategory = categorySpending.entrySet().stream()
-                .max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse("Unknown");
-
-        // Prepare data for AI suggestion
-        Map<String, Object> insights = new HashMap<>();
-        insights.put("mostUsedMerchant", mostUsedMerchant);
-        insights.put("highestSpendingCategory", highestSpendingCategory);
-        insights.put("merchantFrequency", merchantFrequency);
-        insights.put("categorySpending", categorySpending);
-
-        return insights;
     }
 }
