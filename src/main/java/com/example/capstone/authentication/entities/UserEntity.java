@@ -93,6 +93,12 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private LocalDateTime lastSpendReset;
 
+    @Column
+    private String notificationToken;
+
+    @Column(nullable = false)
+    private Boolean notificationEnabled = true;
+
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonIgnoreProperties(value = { "user" })
     private List<CardEntity> cards;
@@ -326,6 +332,22 @@ public class UserEntity implements UserDetails {
 
     public void setLastSpendReset(LocalDateTime lastSpendReset) {
         this.lastSpendReset = lastSpendReset;
+    }
+
+    public String getNotificationToken() {
+        return notificationToken;
+    }
+
+    public void setNotificationToken(String notificationToken) {
+        this.notificationToken = notificationToken;
+    }
+
+    public Boolean getNotificationEnabled() {
+        return notificationEnabled;
+    }
+
+    public void setNotificationEnabled(Boolean notificationEnabled) {
+        this.notificationEnabled = notificationEnabled;
     }
 
     @Override

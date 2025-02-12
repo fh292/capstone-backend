@@ -8,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.example.capstone.authentication.entities.UserEntity;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Entity;
@@ -63,9 +64,12 @@ public class CardEntity {
     private Double total;
 
     @OneToMany(mappedBy = "card")
+    @JsonIgnoreProperties(value={"card"})
+    @JsonBackReference
     private List<TransactionEntity> transaction;
 
     @OneToMany(mappedBy = "card")
+    @JsonIgnoreProperties(value = {"card"})
     private List<SharedCardEntity> sharedCard;
 
     @ManyToOne(fetch = FetchType.LAZY)

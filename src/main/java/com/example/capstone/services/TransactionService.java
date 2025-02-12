@@ -1,10 +1,15 @@
 package com.example.capstone.services;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -22,13 +27,27 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final CardRepository cardRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Autowired
-    public TransactionService(TransactionRepository transactionRepository, CardRepository cardRepository, UserRepository userRepository) {
+    public TransactionService(
+            TransactionRepository transactionRepository,
+            CardRepository cardRepository,
+            UserRepository userRepository,
+            NotificationService notificationService) {
         this.transactionRepository = transactionRepository;
         this.cardRepository = cardRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
+
+    public Page<TransactionEntity> getAllTransactionsPg(int page, int size) {
+        if (size <= 0) size = 10;
+        if (page < 0) page = 0;
+        Pageable pageable = PageRequest.of(page, size);
+        return transactionRepository.findAll(pageable);
+    }
+
     @Cacheable(value = "transactions",key = "#id")
     public List<TransactionResponse> getAllTransactions() {
         return transactionRepository.findAll().stream()
@@ -101,6 +120,34 @@ public class TransactionService {
             throw new RuntimeException("Transaction not found");
         }
         transactionRepository.deleteById(id);
+    }
+
+    public Map<String, Object> analyzeTransactions(UserEntity user) {
+        List<TransactionEntity> transactions = transactionRepository.findByUser(user);
+
+        // Group transactions by merchant
+        Map<String, Long> merchantFrequency = transactions.stream()
+                .collect(Collectors.groupingBy(TransactionEntity::getMerchant, Collectors.counting()));
+
+        // Group transactions by category
+        Map<String, Double> categorySpending = transactions.stream()
+                .collect(Collectors.groupingBy(TransactionEntity::getCategory, Collectors.summingDouble(TransactionEntity::getAmount)));
+
+        // Find the most-used merchant and highest spending category
+        String mostUsedMerchant = merchantFrequency.entrySet().stream()
+                .max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse("Unknown");
+
+        String highestSpendingCategory = categorySpending.entrySet().stream()
+                .max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse("Unknown");
+
+        // Prepare data for AI suggestion
+        Map<String, Object> insights = new HashMap<>();
+        insights.put("mostUsedMerchant", mostUsedMerchant);
+        insights.put("highestSpendingCategory", highestSpendingCategory);
+        insights.put("merchantFrequency", merchantFrequency);
+        insights.put("categorySpending", categorySpending);
+
+        return insights;
     }
 
     private String validateCard(CardEntity card, TransactionRequest request) {
@@ -265,7 +312,32 @@ public class TransactionService {
     private TransactionResponse createDeclinedTransaction(TransactionRequest request, CardEntity card, String reason) {
         TransactionEntity transaction = createTransactionEntity(request, card);
         transaction.setStatus("DECLINED");
+        transaction.setDeclineReason(reason);
         transaction = transactionRepository.save(transaction);
+
+        // Send notification for declined transaction
+        try {
+            notificationService.sendNotification(
+                card.getUser(),
+                "Transaction Declined",
+            String.format("Payment of KD %.2f at %s was declined. %s",
+                request.getAmount(),
+                request.getMerchant(),
+                reason
+            ),
+            Map.of(
+                "transactionId", transaction.getId(),
+                "cardId", card.getId(),
+                "amount", request.getAmount(),
+                "merchant", request.getMerchant(),
+                "status", "DECLINED",
+                "reason", reason
+                )
+            );
+        } catch (Exception e) {
+            System.out.println("Error sending notification: " + e.getMessage());
+        }
+
         return new TransactionResponse(transaction, reason);
     }
 
@@ -285,6 +357,27 @@ public class TransactionService {
         user.setCurrentDailySpend(user.getCurrentDailySpend() + request.getAmount());
         user.setCurrentMonthlySpend(user.getCurrentMonthlySpend() + request.getAmount());
         userRepository.save(user);
+
+        // Send notification for approved transaction
+        try {
+            notificationService.sendNotification(
+                user,
+                "Transaction Approved",
+                String.format("Payment of KD %.2f at %s was approved.",
+                request.getAmount(),
+                request.getMerchant()
+            ),
+            Map.of(
+                "transactionId", transaction.getId(),
+                "cardId", card.getId(),
+                "amount", request.getAmount(),
+                "merchant", request.getMerchant(),
+                "status", "APPROVED"
+                )
+            );
+        } catch (Exception e) {
+            System.out.println("Error sending notification: " + e.getMessage());
+        }
 
         // If this is a burner card, close it after the first approved transaction
         if ("BURNER".equalsIgnoreCase(card.getCardType())) {

@@ -1,6 +1,8 @@
 package com.example.capstone.entities;
 
 import com.example.capstone.authentication.entities.UserEntity;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -16,10 +18,12 @@ public class SharedCardEntity {
 
     @ManyToOne
     @JoinColumn(name = "card_id")
+    //@JsonIgnoreProperties(value = {"transaction", "sharedCard", "user"})
     private CardEntity card;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties(value = {"cards", "transactions", "sharedCards"})
     private UserEntity user;
 
     public Long getId() {

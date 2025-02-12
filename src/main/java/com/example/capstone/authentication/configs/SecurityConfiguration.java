@@ -40,7 +40,8 @@ public class SecurityConfiguration {
                                 "/swagger-resources/**",
                                 "/webjars/**",
                                 "/auth/**",
-                                "/transaction/process" // Allow transaction processing without auth
+                                "/transaction/process", // Allow transaction processing without auth
+                                "/ws/**"
                         ).permitAll()
 
                         // 2) Everything else
@@ -56,8 +57,8 @@ public class SecurityConfiguration {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://localhost:8005/", "http://localhost:3000"));
-        configuration.setAllowedMethods(List.of("GET", "POST"));
+        configuration.setAllowedOrigins(List.of("http://localhost:8005/", "http://localhost:3000", "*"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

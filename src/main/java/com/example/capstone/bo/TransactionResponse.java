@@ -34,6 +34,7 @@ public class TransactionResponse  implements Serializable {
             this.longitude = entity.getLongitude();
             this.latitude = entity.getLatitude();
             this.createdAt = entity.getCreatedAt();
+            this.declineReason = entity.getDeclineReason();
         } else {
             this.status = "DECLINED";
         }
