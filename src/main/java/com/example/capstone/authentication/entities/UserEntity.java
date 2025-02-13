@@ -69,9 +69,6 @@ public class UserEntity implements UserDetails {
     @Column
     private Boolean isActive;
 
-    @Column
-    private Long cardId;
-
     @Column(nullable = false)
     private Double monthlySpendLimit = 5000.0;
 
@@ -238,13 +235,6 @@ public class UserEntity implements UserDetails {
         this.isActive = isActive;
     }
 
-    public Long getCardId() {
-        return cardId;
-    }
-
-    public void setCardId(Long cardId) {
-        this.cardId = cardId;
-    }
 
     public List<CardEntity> getCards() {
         return cards;

@@ -94,6 +94,11 @@ public class TransactionService {
         CardEntity card = cardRepository.findByCardNumber(request.getCardNumber())
                 .orElseThrow(() -> new RuntimeException("Card not found"));
 
+        // Check if user has a bank account connected
+        if (card.getUser().getBankAccountUsername() == null || card.getUser().getBankAccountNumber() == null) {
+            return createDeclinedTransaction(request, card, "No bank account connected. Please connect a bank account first.");
+        }
+
         // Basic card validation
         String validationResult = validateCard(card, request);
         if (validationResult != null) {
@@ -234,18 +239,13 @@ public class TransactionService {
     }
 
     private String validateCardByType(CardEntity card, TransactionRequest request) {
-        switch (card.getCardType().toLowerCase()) {
-            case "burner":
-                return validateBurnerCard(card);
-            case "merchant_locked":
-                return validateMerchantLockedCard(card, request);
-            case "category_locked":
-                return validateCategoryLockedCard(card, request);
-            case "location_locked":
-                return validateLocationLockedCard(card, request);
-            default:
-                return null;
-        }
+        return switch (card.getCardType().toLowerCase()) {
+            case "burner" -> validateBurnerCard(card);
+            case "merchant_locked" -> validateMerchantLockedCard(card, request);
+            case "category_locked" -> validateCategoryLockedCard(card, request);
+            case "location_locked" -> validateLocationLockedCard(card, request);
+            default -> null;
+        };
     }
 
     private String validateBurnerCard(CardEntity card) {
