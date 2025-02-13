@@ -3,7 +3,6 @@ package com.example.capstone.bo;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 import com.example.capstone.authentication.entities.UserEntity;
 import com.example.capstone.entities.CardEntity;
@@ -21,7 +20,6 @@ public class UserResponse {
     private String bankAccountUsername;
     private String subscription;
     private String bankAccountNumber;
-    private String cardId;
     @JsonIgnore
     private List<CardEntity> cards;
     private String gender;
@@ -51,7 +49,6 @@ public class UserResponse {
         this.bankAccountUsername = userEntity.getBankAccountUsername();
         this.subscription = userEntity.getSubscription();
         this.bankAccountNumber = userEntity.getBankAccountNumber();
-        this.cardId = Objects.toString(userEntity.getCardId(), null);
         this.cards = userEntity.getCards();
         this.gender = userEntity.getGender();
         this.dateOfBirth = userEntity.getDateOfBirth();
@@ -100,9 +97,6 @@ public class UserResponse {
 
     public String getBankAccountNumber() { return bankAccountNumber; }
     public void setBankAccountNumber(String bankAccountNumber) { this.bankAccountNumber = bankAccountNumber; }
-
-    public String getCardId() { return cardId; }
-    public void setCardId(String cardId) { this.cardId = cardId; }
 
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }

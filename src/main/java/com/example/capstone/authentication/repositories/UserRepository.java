@@ -13,6 +13,8 @@ import com.example.capstone.authentication.entities.UserEntity;
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findByEmail(String email);
     Optional<UserEntity> findByCivilId(String civilId);
+    Optional<UserEntity> findByBankAccountUsername(String bankAccountUsername);
+    Optional<UserEntity> findByBankAccountNumber(String bankAccountNumber);
 
     @Modifying
     @Query("UPDATE UserEntity u SET u.currentMonthlySpend = 0.0, u.currentMonthCardIssuance = 0, u.lastSpendReset = CURRENT_TIMESTAMP")

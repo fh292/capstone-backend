@@ -106,4 +106,55 @@ public class UserService {
 
         return new UserResponse(user);
     }
+
+    public UserResponse connectBankAccount(Authentication authentication, String bankAccountUsername) {
+        if (bankAccountUsername == null || bankAccountUsername.trim().isEmpty()) {
+            throw new IllegalArgumentException("Bank account username is required");
+        }
+
+        UserEntity user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+
+        // Check if user already has a bank account connected
+        if (user.getBankAccountUsername() != null || user.getBankAccountNumber() != null) {
+            throw new IllegalArgumentException("User already has a bank account connected. Please disconnect the current bank account first.");
+        }
+
+        // Check if bank account username is already in use
+        Optional<UserEntity> existingUser = userRepository.findByBankAccountUsername(bankAccountUsername);
+        if (existingUser.isPresent() && !existingUser.get().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("Bank account username is already in use");
+        }
+
+        user.setBankAccountUsername(bankAccountUsername);
+        user.setBankAccountNumber(generateUniqueBankAccountNumber());
+
+        userRepository.save(user);
+        return new UserResponse(user);
+    }
+
+    public UserResponse disconnectBankAccount(Authentication authentication) {
+        UserEntity user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+
+        user.setBankAccountUsername(null);
+        user.setBankAccountNumber(null);
+
+        userRepository.save(user);
+        return new UserResponse(user);
+    }
+
+    private String generateUniqueBankAccountNumber() {
+        String bankAccountNumber;
+        do {
+            // Generate a 16-digit bank account number
+            StringBuilder number = new StringBuilder();
+            for (int i = 0; i < 16; i++) {
+                number.append((int) (Math.random() * 10));
+            }
+            bankAccountNumber = number.toString();
+        } while (userRepository.findByBankAccountNumber(bankAccountNumber).isPresent());
+
+        return bankAccountNumber;
+    }
 }

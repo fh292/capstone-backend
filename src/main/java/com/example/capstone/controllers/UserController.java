@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -94,6 +95,36 @@ public class UserController {
             "monthlyLimit", user.getMonthlyCardIssuanceLimit(),
             "currentMonthUsage", user.getCurrentMonthCardIssuance()
         ));
+    }
+
+    @PostMapping("/me/connect-bank")
+    public ResponseEntity<?> connectBankAccount(Authentication authentication, @RequestBody Map<String, String> request) {
+        try {
+            String bankAccountUsername = request.get("bankAccountUsername");
+            if (bankAccountUsername == null) {
+                return ResponseEntity.badRequest().body("Bank account username is required");
+            }
+            UserResponse response = userService.connectBankAccount(authentication, bankAccountUsername);
+            return ResponseEntity.ok(Map.of(
+                "message", "Bank account connected successfully",
+                "bankAccountNumber", response.getBankAccountNumber(),
+                "bankAccountUsername", response.getBankAccountUsername()
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while connecting bank account");
+        }
+    }
+
+    @PostMapping("/me/disconnect-bank")
+    public ResponseEntity<?> disconnectBankAccount(Authentication authentication) {
+        try {
+            UserResponse response = userService.disconnectBankAccount(authentication);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while disconnecting bank account");
+        }
     }
 
 }
