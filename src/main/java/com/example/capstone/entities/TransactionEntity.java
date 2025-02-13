@@ -164,4 +164,6 @@ public class TransactionEntity {
     public void setUser(UserEntity user) {
         this.user = user;
     }
+
+
 }

@@ -118,16 +118,23 @@ public class DatabaseSeeder {
         String sql = "SELECT COUNT(*) FROM \"transaction_entity\"";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class);
 
+        CardEntity card = cardRepository.findByCardNumber("1234-5678-9012-3456")
+                .orElseThrow(() -> new RuntimeException("Card not found"));
+        UserEntity user = userRepository.findByEmail("farah@cvrd.com")
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         if (count == null || count == 0) {
             TransactionEntity transaction = new TransactionEntity();
             transaction.setAmount(100.50);
             transaction.setMerchant("Amazon");
             transaction.setStatus("APPROVED");
-//            transaction.setIsRecurring(false);
+            transaction.setRecurring(false);
             transaction.setDescription("Online Purchase");
             transaction.setType("DEBIT");
             transaction.setCategory("Shopping");
             transaction.setCreatedAt(LocalDateTime.now());
+            transaction.setCard(card);
+            transaction.setUser(user);
 
             transactionRepository.save(transaction);
             logger.info("Transactions table seeded.");
