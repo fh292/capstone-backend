@@ -43,14 +43,16 @@ public class UserService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (updateRequest.getFirstName() != null) user.setFirstName(updateRequest.getFirstName());
-        if (updateRequest.getLastName() != null) user.setLastName(updateRequest.getLastName());
-        if (updateRequest.getPhoneNumber() != null) user.setPhoneNumber(updateRequest.getPhoneNumber());
-        if (updateRequest.getBankAccountUsername() != null) user.setBankAccountUsername(updateRequest.getBankAccountUsername());
-        if (updateRequest.getSubscription() != null) user.setSubscription(updateRequest.getSubscription());
-        if (updateRequest.getProfilePic() != null) user.setProfilePic(updateRequest.getProfilePic());
-        if (updateRequest.getGender() != null) user.setGender(updateRequest.getGender());
-        if (updateRequest.getDateOfBirth() != null) user.setDateOfBirth(updateRequest.getDateOfBirth());
+        if (updateRequest != null) {
+            if (updateRequest.getFirstName() != null) user.setFirstName(updateRequest.getFirstName());
+            if (updateRequest.getLastName() != null) user.setLastName(updateRequest.getLastName());
+            if (updateRequest.getPhoneNumber() != null) user.setPhoneNumber(updateRequest.getPhoneNumber());
+            if (updateRequest.getBankAccountUsername() != null) user.setBankAccountUsername(updateRequest.getBankAccountUsername());
+            if (updateRequest.getSubscription() != null) user.setSubscription(updateRequest.getSubscription());
+            if (updateRequest.getProfilePic() != null) user.setProfilePic(updateRequest.getProfilePic());
+            if (updateRequest.getGender() != null) user.setGender(updateRequest.getGender());
+            if (updateRequest.getDateOfBirth() != null) user.setDateOfBirth(updateRequest.getDateOfBirth());
+        }
 
         userRepository.save(user);
 
@@ -141,6 +143,16 @@ public class UserService {
         user.setBankAccountNumber(null);
 
         userRepository.save(user);
+        return new UserResponse(user);
+    }
+
+    public UserResponse toggleNotifications(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setNotificationEnabled(!user.getNotificationEnabled());
+        userRepository.save(user);
+
         return new UserResponse(user);
     }
 

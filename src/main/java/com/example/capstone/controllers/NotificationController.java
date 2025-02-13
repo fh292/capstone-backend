@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.capstone.authentication.entities.UserEntity;
 import com.example.capstone.bo.TokenRequest;
+import com.example.capstone.bo.UserResponse;
 import com.example.capstone.entities.NotificationEntity;
 import com.example.capstone.services.NotificationService;
 import com.example.capstone.services.UserService;
@@ -65,9 +66,8 @@ public class NotificationController {
     @PutMapping("/toggle-notifications")
     public ResponseEntity<Boolean> toggleNotifications() {
         UserEntity user = getAuthenticatedUser();
-        user.setNotificationEnabled(!user.getNotificationEnabled());
-        userService.updateUser(user.getId(), null); // Using null as we're not updating other fields
-        return ResponseEntity.ok(user.getNotificationEnabled());
+        UserResponse updatedUser = userService.toggleNotifications(user.getId());
+        return ResponseEntity.ok(updatedUser.getNotificationEnabled());
     }
 
     private UserEntity getAuthenticatedUser() {
