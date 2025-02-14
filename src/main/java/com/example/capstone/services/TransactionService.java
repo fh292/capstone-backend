@@ -1,5 +1,6 @@
 package com.example.capstone.services;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -165,6 +166,27 @@ public class TransactionService {
             return "Card expired";
         }
 
+        try {
+            String expiryDate = request.getExpiryDate(); // Format: "MMYY"
+            if (expiryDate == null || expiryDate.length() != 4) {
+                return "Invalid expiry date format. Use format: MMYY";
+            }
+
+            int month = Integer.parseInt(expiryDate.substring(0, 2));
+            int year = Integer.parseInt(expiryDate.substring(2, 4)) + 2000;
+
+            // Create LocalDate for the last day of the expiry month
+            LocalDate requestExpiryDate = LocalDate.of(year, month, 1).plusMonths(1).minusDays(1);
+
+            // Compare year and month only
+            if (requestExpiryDate.getYear() != card.getExpiryDate().getYear() ||
+                requestExpiryDate.getMonth() != card.getExpiryDate().getMonth()) {
+                return "Invalid expiry date";
+            }
+        } catch (Exception e) {
+            return "Invalid expiry date format. Use format: MMYY";
+        }
+
         // Validate CVV
         if (!card.getCvv().equals(request.getCvv())) {
             return "Invalid CVV";
@@ -174,6 +196,7 @@ public class TransactionService {
         if (Boolean.TRUE.equals(card.getClosed())) {
             return "Card is closed";
         }
+
         if (Boolean.TRUE.equals(card.getPaused())) {
             return "Card is paused";
         }
