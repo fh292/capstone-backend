@@ -36,6 +36,7 @@ public class UserResponse {
     private Integer currentMonthCardIssuance;
     private LocalDateTime lastSpendReset;
     private Integer activeCardsCount;
+    private Boolean notificationEnabled;
 
     public UserResponse() {}
 
@@ -63,6 +64,7 @@ public class UserResponse {
         this.currentDailySpend = userEntity.getCurrentDailySpend();
         this.currentMonthCardIssuance = userEntity.getCurrentMonthCardIssuance();
         this.lastSpendReset = userEntity.getLastSpendReset();
+        this.notificationEnabled = userEntity.getNotificationEnabled();
 
         // Calculate active cards count
         this.activeCardsCount = userEntity.getCards() == null ? 0 :
@@ -188,5 +190,13 @@ public class UserResponse {
 
     public void setActiveCardsCount(Integer activeCardsCount) {
         this.activeCardsCount = activeCardsCount;
+    }
+
+    public Boolean getNotificationEnabled() {
+        return notificationEnabled;
+    }
+
+    public void setNotificationEnabled(Boolean notificationEnabled) {
+        this.notificationEnabled = notificationEnabled;
     }
 }

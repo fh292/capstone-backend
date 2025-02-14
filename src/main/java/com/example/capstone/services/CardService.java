@@ -31,10 +31,12 @@ public class CardService {
     private static final String CARD_PREFIX = "4707350";
     private final CardRepository cardRepository;
     private final SecureRandom random;
+    private final SubscriptionService subscriptionService;
 
-    public CardService(CardRepository cardRepository) {
+    public CardService(CardRepository cardRepository, SubscriptionService subscriptionService) {
         this.cardRepository = cardRepository;
         this.random = new SecureRandom();
+        this.subscriptionService = subscriptionService;
     }
 
     public CardResponse createBurnerCard(BurnerCardRequest request, UserEntity user) {
@@ -285,6 +287,10 @@ public class CardService {
             throw new IllegalArgumentException("Card is already closed.");
         }
 
+        // Handle any active subscriptions before closing the card
+        subscriptionService.handleCardClosure(card);
+
+        card.setPinned(false);
         card.setClosed(true);
         card.setPaused(true); // Also pause the card when closing
         return cardRepository.save(card);

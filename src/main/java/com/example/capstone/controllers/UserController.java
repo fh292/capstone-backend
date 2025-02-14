@@ -18,9 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.capstone.authentication.entities.UserEntity;
 import com.example.capstone.bo.CardResponse;
+import com.example.capstone.bo.SubscriptionResponse;
 import com.example.capstone.bo.UpdateUserRequest;
 import com.example.capstone.bo.UserResponse;
 import com.example.capstone.services.CardService;
+import com.example.capstone.services.SubscriptionService;
 import com.example.capstone.services.UserService;
 
 @RequestMapping("/user")
@@ -29,10 +31,12 @@ public class UserController {
 
     private final UserService userService;
     private final CardService cardService;
+    private final SubscriptionService subscriptionService;
 
-    public UserController(UserService userService, CardService cardService) {
+    public UserController(UserService userService, CardService cardService, SubscriptionService subscriptionService) {
         this.userService = userService;
         this.cardService = cardService;
+        this.subscriptionService = subscriptionService;
     }
 
 
@@ -125,6 +129,14 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while disconnecting bank account");
         }
+    }
+
+    @GetMapping("/me/subscriptions")
+    public ResponseEntity<List<SubscriptionResponse>> getCurrentUserSubscriptions(Authentication authentication) {
+        UserEntity user = userService.findByEmail(authentication.getName())
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+        List<SubscriptionResponse> subscriptions = subscriptionService.getUserSubscriptions(user);
+        return ResponseEntity.ok(subscriptions);
     }
 
 }
