@@ -28,17 +28,20 @@ public class TransactionService {
     private final CardRepository cardRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final SubscriptionService subscriptionService;
 
     @Autowired
     public TransactionService(
             TransactionRepository transactionRepository,
             CardRepository cardRepository,
             UserRepository userRepository,
-            NotificationService notificationService) {
+            NotificationService notificationService,
+            SubscriptionService subscriptionService) {
         this.transactionRepository = transactionRepository;
         this.cardRepository = cardRepository;
         this.userRepository = userRepository;
         this.notificationService = notificationService;
+        this.subscriptionService = subscriptionService;
     }
 
     public Page<TransactionEntity> getAllTransactionsPg(int page, int size) {
@@ -358,6 +361,9 @@ public class TransactionService {
         user.setCurrentDailySpend(user.getCurrentDailySpend() + request.getAmount());
         user.setCurrentMonthlySpend(user.getCurrentMonthlySpend() + request.getAmount());
         userRepository.save(user);
+
+        // Process subscription if it's a recurring transaction
+        subscriptionService.processRecurringTransaction(transaction);
 
         // Send notification for approved transaction
         try {
