@@ -1,4 +1,5 @@
 package com.example.capstone.bo;
+
 import java.time.LocalDate;
 
 public class UpdateUserRequest {
@@ -6,36 +7,76 @@ public class UpdateUserRequest {
     private String lastName;
     private String phoneNumber;
     private String bankAccountUsername;
-    private String subscription;
+    private String plan;
     private String profilePic;
     private String gender;
     private LocalDate dateOfBirth;
     private String password;
     private String civilId;
 
-    public String getFirstName() { return firstName; }
-    public void setFirstName(String firstName) { this.firstName = firstName; }
+    public String getFirstName() {
+        return firstName;
+    }
 
-    public String getLastName() { return lastName; }
-    public void setLastName(String lastName) { this.lastName = lastName; }
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
-    public String getPhoneNumber() { return phoneNumber; }
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+    public String getLastName() {
+        return lastName;
+    }
 
-    public String getBankAccountUsername() { return bankAccountUsername; }
-    public void setBankAccountUsername(String bankAccountUsername) { this.bankAccountUsername = bankAccountUsername; }
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
-    public String getSubscription() { return subscription; }
-    public void setSubscription(String subscription) { this.subscription = subscription; }
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
 
-    public String getProfilePic() { return profilePic; }
-    public void setProfilePic(String profilePic) { this.profilePic = profilePic; }
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 
-    public String getGender() { return gender; }
-    public void setGender(String gender) { this.gender = gender; }
+    public String getBankAccountUsername() {
+        return bankAccountUsername;
+    }
 
-    public LocalDate getDateOfBirth() { return dateOfBirth; }
-    public void setDateOfBirth(LocalDate dateOfBirth) { this.dateOfBirth = dateOfBirth; }
+    public void setBankAccountUsername(String bankAccountUsername) {
+        this.bankAccountUsername = bankAccountUsername;
+    }
+
+    public String getPlan() {
+        return plan;
+    }
+
+    public void setPlan(String plan) {
+        this.plan = plan;
+    }
+
+    public String getProfilePic() {
+        return profilePic;
+    }
+
+    public void setProfilePic(String profilePic) {
+        this.profilePic = profilePic;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
 
     public String getPassword() {
         return password;

@@ -1,4 +1,5 @@
 package com.example.capstone.authentication.entities;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -48,7 +49,7 @@ public class UserEntity implements UserDetails {
     private String bankAccountUsername;
 
     @Column
-    private String subscription;
+    private String plan = "BASIC";
 
     @Column(unique = true, nullable = true)
     private String bankAccountNumber;
@@ -109,7 +110,17 @@ public class UserEntity implements UserDetails {
     @Column
     private String department;
 
-    public UserEntity() {}
+    @Column
+    private LocalDateTime planStartDate = LocalDateTime.now();
+
+    @Column
+    private LocalDateTime planEndDate;
+
+    @Column(nullable = false)
+    private Boolean autoRenewal = false;
+
+    public UserEntity() {
+    }
 
     public Long getId() {
         return id;
@@ -179,12 +190,12 @@ public class UserEntity implements UserDetails {
         this.bankAccountUsername = bankAccountUsername;
     }
 
-    public String getSubscription() {
-        return subscription;
+    public String getPlan() {
+        return plan;
     }
 
-    public void setSubscription(String subscription) {
-        this.subscription = subscription;
+    public void setPlan(String plan) {
+        this.plan = plan;
     }
 
     public String getBankAccountNumber() {
@@ -234,7 +245,6 @@ public class UserEntity implements UserDetails {
     public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
     }
-
 
     public List<CardEntity> getCards() {
         return cards;
@@ -338,6 +348,30 @@ public class UserEntity implements UserDetails {
 
     public void setNotificationEnabled(Boolean notificationEnabled) {
         this.notificationEnabled = notificationEnabled;
+    }
+
+    public LocalDateTime getPlanStartDate() {
+        return planStartDate;
+    }
+
+    public void setPlanStartDate(LocalDateTime planStartDate) {
+        this.planStartDate = planStartDate;
+    }
+
+    public LocalDateTime getPlanEndDate() {
+        return planEndDate;
+    }
+
+    public void setPlanEndDate(LocalDateTime planEndDate) {
+        this.planEndDate = planEndDate;
+    }
+
+    public Boolean getAutoRenewal() {
+        return autoRenewal;
+    }
+
+    public void setAutoRenewal(Boolean autoRenewal) {
+        this.autoRenewal = autoRenewal;
     }
 
     @Override
