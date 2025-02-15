@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,7 +17,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.capstone.authentication.entities.UserEntity;
 import com.example.capstone.bo.CardResponse;
@@ -22,6 +27,7 @@ import com.example.capstone.bo.SubscriptionResponse;
 import com.example.capstone.bo.UpdateUserRequest;
 import com.example.capstone.bo.UserResponse;
 import com.example.capstone.services.CardService;
+import com.example.capstone.services.FileStorageService;
 import com.example.capstone.services.SubscriptionService;
 import com.example.capstone.services.UserService;
 
@@ -32,11 +38,13 @@ public class UserController {
     private final UserService userService;
     private final CardService cardService;
     private final SubscriptionService subscriptionService;
+    private final FileStorageService fileStorageService;
 
-    public UserController(UserService userService, CardService cardService, SubscriptionService subscriptionService) {
+    public UserController(UserService userService, CardService cardService, SubscriptionService subscriptionService, FileStorageService fileStorageService) {
         this.userService = userService;
         this.cardService = cardService;
         this.subscriptionService = subscriptionService;
+        this.fileStorageService = fileStorageService;
     }
 
 
@@ -139,4 +147,63 @@ public class UserController {
         return ResponseEntity.ok(subscriptions);
     }
 
+    @PostMapping(value = "/me/profile-picture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserResponse> updateProfilePicture(
+            Authentication authentication,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            // Validate file type
+            String contentType = file.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            UserResponse response = userService.updateProfilePicture(authentication, file);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @DeleteMapping("/me/profile-picture")
+    public ResponseEntity<UserResponse> deleteProfilePicture(Authentication authentication) {
+        try {
+            UserResponse response = userService.deleteProfilePicture(authentication);
+            return ResponseEntity.ok(response);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/uploads/{fileName:.+}")
+    public ResponseEntity<Resource> getProfilePicture(@PathVariable String fileName) {
+        try {
+            Resource resource = fileStorageService.loadFileAsResource(fileName);
+            String contentType = determineContentType(fileName);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    private String determineContentType(String fileName) {
+        String fileExtension = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();
+        return switch (fileExtension) {
+            case ".png" -> "image/png";
+            case ".jpg", ".jpeg" -> "image/jpeg";
+            case ".gif" -> "image/gif";
+            case ".webp" -> "image/webp";
+            default -> "application/octet-stream";
+        };
+    }
 }
