@@ -17,17 +17,20 @@ import com.example.capstone.bo.UserResponse;
 @Service
 public class UserService {
     private static UserRepository userRepository = null;
+
     public static UserResponse getUserById(Long id) {
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User with ID " + id + " not found"));
 
         return new UserResponse(userEntity);
     }
+
     private final FileStorageService fileStorageService;
 
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, FileStorageService fileStorageService) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+            FileStorageService fileStorageService) {
         UserService.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.fileStorageService = fileStorageService;
@@ -47,14 +50,22 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (updateRequest != null) {
-            if (updateRequest.getFirstName() != null) user.setFirstName(updateRequest.getFirstName());
-            if (updateRequest.getLastName() != null) user.setLastName(updateRequest.getLastName());
-            if (updateRequest.getPhoneNumber() != null) user.setPhoneNumber(updateRequest.getPhoneNumber());
-            if (updateRequest.getBankAccountUsername() != null) user.setBankAccountUsername(updateRequest.getBankAccountUsername());
-            if (updateRequest.getSubscription() != null) user.setSubscription(updateRequest.getSubscription());
-            if (updateRequest.getProfilePic() != null) user.setProfilePic(updateRequest.getProfilePic());
-            if (updateRequest.getGender() != null) user.setGender(updateRequest.getGender());
-            if (updateRequest.getDateOfBirth() != null) user.setDateOfBirth(updateRequest.getDateOfBirth());
+            if (updateRequest.getFirstName() != null)
+                user.setFirstName(updateRequest.getFirstName());
+            if (updateRequest.getLastName() != null)
+                user.setLastName(updateRequest.getLastName());
+            if (updateRequest.getPhoneNumber() != null)
+                user.setPhoneNumber(updateRequest.getPhoneNumber());
+            if (updateRequest.getBankAccountUsername() != null)
+                user.setBankAccountUsername(updateRequest.getBankAccountUsername());
+            if (updateRequest.getPlan() != null)
+                user.setPlan(updateRequest.getPlan());
+            if (updateRequest.getProfilePic() != null)
+                user.setProfilePic(updateRequest.getProfilePic());
+            if (updateRequest.getGender() != null)
+                user.setGender(updateRequest.getGender());
+            if (updateRequest.getDateOfBirth() != null)
+                user.setDateOfBirth(updateRequest.getDateOfBirth());
         }
 
         userRepository.save(user);
@@ -95,14 +106,22 @@ public class UserService {
             }
         }
 
-        if (updateRequest.getFirstName() != null) user.setFirstName(updateRequest.getFirstName());
-        if (updateRequest.getLastName() != null) user.setLastName(updateRequest.getLastName());
-        if (updateRequest.getPhoneNumber() != null) user.setPhoneNumber(updateRequest.getPhoneNumber());
-        if (updateRequest.getBankAccountUsername() != null) user.setBankAccountUsername(updateRequest.getBankAccountUsername());
-        if (updateRequest.getSubscription() != null) user.setSubscription(updateRequest.getSubscription());
-        if (updateRequest.getProfilePic() != null) user.setProfilePic(updateRequest.getProfilePic());
-        if (updateRequest.getGender() != null) user.setGender(updateRequest.getGender());
-        if (updateRequest.getDateOfBirth() != null) user.setDateOfBirth(updateRequest.getDateOfBirth());
+        if (updateRequest.getFirstName() != null)
+            user.setFirstName(updateRequest.getFirstName());
+        if (updateRequest.getLastName() != null)
+            user.setLastName(updateRequest.getLastName());
+        if (updateRequest.getPhoneNumber() != null)
+            user.setPhoneNumber(updateRequest.getPhoneNumber());
+        if (updateRequest.getBankAccountUsername() != null)
+            user.setBankAccountUsername(updateRequest.getBankAccountUsername());
+        if (updateRequest.getPlan() != null)
+            user.setPlan(updateRequest.getPlan());
+        if (updateRequest.getProfilePic() != null)
+            user.setProfilePic(updateRequest.getProfilePic());
+        if (updateRequest.getGender() != null)
+            user.setGender(updateRequest.getGender());
+        if (updateRequest.getDateOfBirth() != null)
+            user.setDateOfBirth(updateRequest.getDateOfBirth());
         if (updateRequest.getPassword() != null) {
             user.setPassword(passwordEncoder.encode(updateRequest.getPassword()));
         }
@@ -122,7 +141,8 @@ public class UserService {
 
         // Check if user already has a bank account connected
         if (user.getBankAccountUsername() != null || user.getBankAccountNumber() != null) {
-            throw new IllegalArgumentException("User already has a bank account connected. Please disconnect the current bank account first.");
+            throw new IllegalArgumentException(
+                    "User already has a bank account connected. Please disconnect the current bank account first.");
         }
 
         // Check if bank account username is already in use

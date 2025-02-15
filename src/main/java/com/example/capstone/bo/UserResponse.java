@@ -18,7 +18,7 @@ public class UserResponse {
     private String civilId;
     private String phoneNumber;
     private String bankAccountUsername;
-    private String subscription;
+    private String plan;
     private String bankAccountNumber;
     @JsonIgnore
     private List<CardEntity> cards;
@@ -37,8 +37,12 @@ public class UserResponse {
     private LocalDateTime lastSpendReset;
     private Integer activeCardsCount;
     private Boolean notificationEnabled;
+    private LocalDateTime planStartDate;
+    private LocalDateTime planEndDate;
+    private Boolean autoRenewal;
 
-    public UserResponse() {}
+    public UserResponse() {
+    }
 
     public UserResponse(UserEntity userEntity) {
         this.id = userEntity.getId();
@@ -48,7 +52,7 @@ public class UserResponse {
         this.civilId = userEntity.getCivilId();
         this.phoneNumber = userEntity.getPhoneNumber();
         this.bankAccountUsername = userEntity.getBankAccountUsername();
-        this.subscription = userEntity.getSubscription();
+        this.plan = userEntity.getPlan();
         this.bankAccountNumber = userEntity.getBankAccountNumber();
         this.cards = userEntity.getCards();
         this.gender = userEntity.getGender();
@@ -65,52 +69,120 @@ public class UserResponse {
         this.currentMonthCardIssuance = userEntity.getCurrentMonthCardIssuance();
         this.lastSpendReset = userEntity.getLastSpendReset();
         this.notificationEnabled = userEntity.getNotificationEnabled();
+        this.planStartDate = userEntity.getPlanStartDate();
+        this.planEndDate = userEntity.getPlanEndDate();
+        this.autoRenewal = userEntity.getAutoRenewal();
 
         // Calculate active cards count
-        this.activeCardsCount = userEntity.getCards() == null ? 0 :
-            (int) userEntity.getCards().stream()
-                .filter(card -> !card.getPaused() && !card.getClosed())
-                .count();
+        this.activeCardsCount = userEntity.getCards() == null ? 0
+                : (int) userEntity.getCards().stream()
+                        .filter(card -> !card.getPaused() && !card.getClosed())
+                        .count();
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getFirstName() { return firstName; }
-    public void setFirstName(String firstName) { this.firstName = firstName; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getLastName() { return lastName; }
-    public void setLastName(String lastName) { this.lastName = lastName; }
+    public String getFirstName() {
+        return firstName;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
-    public String getCivilId() { return civilId; }
-    public void setCivilId(String civilId) { this.civilId = civilId; }
+    public String getLastName() {
+        return lastName;
+    }
 
-    public String getPhoneNumber() { return phoneNumber; }
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
-    public String getBankAccountUsername() { return bankAccountUsername; }
-    public void setBankAccountUsername(String bankAccountUsername) { this.bankAccountUsername = bankAccountUsername; }
+    public String getEmail() {
+        return email;
+    }
 
-    public String getSubscription() { return subscription; }
-    public void setSubscription(String subscription) { this.subscription = subscription; }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-    public String getBankAccountNumber() { return bankAccountNumber; }
-    public void setBankAccountNumber(String bankAccountNumber) { this.bankAccountNumber = bankAccountNumber; }
+    public String getCivilId() {
+        return civilId;
+    }
 
-    public String getGender() { return gender; }
-    public void setGender(String gender) { this.gender = gender; }
+    public void setCivilId(String civilId) {
+        this.civilId = civilId;
+    }
 
-    public LocalDate getDateOfBirth() { return dateOfBirth; }
-    public void setDateOfBirth(LocalDate dateOfBirth) { this.dateOfBirth = dateOfBirth; }
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
 
-    public String getProfilePic() { return profilePic; }
-    public void setProfilePic(String profilePic) { this.profilePic = profilePic; }
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 
-    public String getRole() { return role; }
-    public void setRole(String role) { this.role = role; }
+    public String getBankAccountUsername() {
+        return bankAccountUsername;
+    }
+
+    public void setBankAccountUsername(String bankAccountUsername) {
+        this.bankAccountUsername = bankAccountUsername;
+    }
+
+    public String getPlan() {
+        return plan;
+    }
+
+    public void setPlan(String plan) {
+        this.plan = plan;
+    }
+
+    public String getBankAccountNumber() {
+        return bankAccountNumber;
+    }
+
+    public void setBankAccountNumber(String bankAccountNumber) {
+        this.bankAccountNumber = bankAccountNumber;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public String getProfilePic() {
+        return profilePic;
+    }
+
+    public void setProfilePic(String profilePic) {
+        this.profilePic = profilePic;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 
     public List<CardEntity> getCards() {
         return cards;
@@ -198,5 +270,29 @@ public class UserResponse {
 
     public void setNotificationEnabled(Boolean notificationEnabled) {
         this.notificationEnabled = notificationEnabled;
+    }
+
+    public LocalDateTime getPlanStartDate() {
+        return planStartDate;
+    }
+
+    public void setPlanStartDate(LocalDateTime planStartDate) {
+        this.planStartDate = planStartDate;
+    }
+
+    public LocalDateTime getPlanEndDate() {
+        return planEndDate;
+    }
+
+    public void setPlanEndDate(LocalDateTime planEndDate) {
+        this.planEndDate = planEndDate;
+    }
+
+    public Boolean getAutoRenewal() {
+        return autoRenewal;
+    }
+
+    public void setAutoRenewal(Boolean autoRenewal) {
+        this.autoRenewal = autoRenewal;
     }
 }
