@@ -41,7 +41,9 @@ public class SecurityConfiguration {
                                 "/webjars/**",
                                 "/auth/**",
                                 "/transaction/process", // Allow transaction processing without auth
-                                "/ws/**"
+                                "/ws/**",
+                                "/user/uploads/**",
+                                "/uploads/**"
                         ).permitAll()
 
                         // 2) Everything else

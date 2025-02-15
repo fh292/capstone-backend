@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.capstone.authentication.entities.UserEntity;
 import com.example.capstone.authentication.repositories.UserRepository;
@@ -22,12 +23,14 @@ public class UserService {
 
         return new UserResponse(userEntity);
     }
+    private final FileStorageService fileStorageService;
 
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, FileStorageService fileStorageService) {
         UserService.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.fileStorageService = fileStorageService;
     }
 
     public List<UserResponse> getAllUsers() {
@@ -152,6 +155,37 @@ public class UserService {
 
         user.setNotificationEnabled(!user.getNotificationEnabled());
         userRepository.save(user);
+
+        return new UserResponse(user);
+    }
+
+    public UserResponse updateProfilePicture(Authentication authentication, MultipartFile file) {
+        UserEntity user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+
+        // Delete old profile picture if exists
+        if (user.getProfilePic() != null) {
+            fileStorageService.deleteFile(user.getProfilePic());
+        }
+
+        // Store new profile picture
+        String fileName = fileStorageService.storeFile(file);
+        user.setProfilePic(fileName);
+        userRepository.save(user);
+
+        return new UserResponse(user);
+    }
+
+    public UserResponse deleteProfilePicture(Authentication authentication) {
+        UserEntity user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+
+        // Delete profile picture if exists
+        if (user.getProfilePic() != null) {
+            fileStorageService.deleteFile(user.getProfilePic());
+            user.setProfilePic(null);
+            userRepository.save(user);
+        }
 
         return new UserResponse(user);
     }
