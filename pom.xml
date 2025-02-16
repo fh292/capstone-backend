@@ -125,11 +125,11 @@
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 
-		<dependency>
+		<!-- <dependency>
 			<groupId>com.azure.spring</groupId>
 			<artifactId>spring-cloud-azure-starter-storage-blob</artifactId>
 			<version>5.10.0</version>
-		</dependency>
+		</dependency> -->
 
 	</dependencies>
 
