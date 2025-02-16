@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import com.example.capstone.authentication.entities.UserEntity;
 import com.example.capstone.bo.BurnerCardRequest;
@@ -31,6 +32,7 @@ public class CardController {
 
     private final CardService cardService;
     private final UserService userService;
+
     public CardController(CardService cardService, UserService userService) {
         this.cardService = cardService;
         this.userService = userService;
@@ -101,7 +103,8 @@ public class CardController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the card");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while updating the card");
         }
     }
 
@@ -114,7 +117,8 @@ public class CardController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while closing the card");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while closing the card");
         }
     }
 
@@ -127,7 +131,8 @@ public class CardController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while toggling the card pin status");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while toggling the card pin status");
         }
     }
 
@@ -144,10 +149,21 @@ public class CardController {
     @PutMapping("/update-category/{cardId}")
     public ResponseEntity<CategoryLockedCardResponse> updateCategoryName(
             @PathVariable Long cardId,
-            @RequestBody CategoryLockedCardResponse requestBody
-    ) {
+            @RequestBody CategoryLockedCardResponse requestBody) {
         CategoryLockedCardResponse response = cardService.updateCategoryName(cardId, requestBody);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/id/{cardId}")
+    public ResponseEntity<CardEntity> getCardById(@PathVariable Long cardId) {
+        CardEntity card = cardService.getCardById(cardId);
+        return ResponseEntity.ok(card);
+    }
+    
+    @GetMapping("/{cardNumber}")
+    public ResponseEntity<CardEntity> getCardByCardNumber(@PathVariable String cardNumber) {
+        CardEntity card = cardService.getCardByCardNumber(cardNumber);
+        return ResponseEntity.ok(card);
     }
 
     private UserEntity getAuthenticatedUser() {
@@ -156,10 +172,5 @@ public class CardController {
         return userService.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
-
-
-
-
-
 
 }
