@@ -60,18 +60,22 @@ public class PlanService {
     updateUserPlan(user, newPlan, true);
 
     // Send notification about plan upgrade
-    notificationService.sendNotification(
-        user,
-        "Plan Upgraded",
-        "Your plan has been upgraded to " + planName,
-        Map.of(
-            "planName", planName,
-            "monthlySpendLimit", newPlan.getMonthlySpendLimit(),
-            "dailySpendLimit", newPlan.getDailySpendLimit(),
-            "monthlyCardLimit", newPlan.getMonthlyCardIssuanceLimit(),
-            "planStartDate", user.getPlanStartDate(),
-            "planEndDate", user.getPlanEndDate(),
-            "autoRenewal", user.getAutoRenewal()));
+    try {
+      notificationService.sendNotification(
+          user,
+          "Plan Upgraded",
+          "Your plan has been upgraded to " + planName.toLowerCase(),
+          Map.of(
+              "planName", planName,
+              "monthlySpendLimit", newPlan.getMonthlySpendLimit(),
+              "dailySpendLimit", newPlan.getDailySpendLimit(),
+              "monthlyCardLimit", newPlan.getMonthlyCardIssuanceLimit(),
+              "planStartDate", user.getPlanStartDate(),
+              "planEndDate", user.getPlanEndDate(),
+              "autoRenewal", user.getAutoRenewal()));
+    } catch (Exception e) {
+      System.out.println("Error sending notification: " + e.getMessage());
+    }
   }
 
   @Transactional
@@ -96,11 +100,15 @@ public class PlanService {
     if (user.getPlanEndDate() != null && user.getPlanEndDate().isAfter(LocalDateTime.now())) {
       // Schedule the downgrade for the end of the current billing period
       // For now, we'll just notify the user
-      notificationService.sendNotification(
-          user,
-          "Plan Downgrade Scheduled",
-          "Your plan will be downgraded to " + planName + " on " + user.getPlanEndDate(),
-          Map.of("effectiveDate", user.getPlanEndDate()));
+      try {
+        notificationService.sendNotification(
+            user,
+            "Plan Downgrade Scheduled",
+            "Your plan will be downgraded to " + planName + " on " + user.getPlanEndDate(),
+            Map.of("effectiveDate", user.getPlanEndDate()));
+      } catch (Exception e) {
+        System.out.println("Error sending notification: " + e.getMessage());
+      }
       return;
     }
 
@@ -108,15 +116,19 @@ public class PlanService {
     updateUserPlan(user, newPlan, false);
 
     // Send notification about plan downgrade
-    notificationService.sendNotification(
-        user,
-        "Plan Downgraded",
-        "Your plan has been downgraded to " + planName,
-        Map.of(
-            "planName", planName,
-            "monthlySpendLimit", newPlan.getMonthlySpendLimit(),
-            "dailySpendLimit", newPlan.getDailySpendLimit(),
-            "monthlyCardLimit", newPlan.getMonthlyCardIssuanceLimit()));
+    try {
+      notificationService.sendNotification(
+          user,
+          "Plan Downgraded",
+          "Your plan has been downgraded to " + planName.toLowerCase(),
+          Map.of(
+              "planName", planName,
+              "monthlySpendLimit", newPlan.getMonthlySpendLimit(),
+              "dailySpendLimit", newPlan.getDailySpendLimit(),
+              "monthlyCardLimit", newPlan.getMonthlyCardIssuanceLimit()));
+    } catch (Exception e) {
+      System.out.println("Error sending notification: " + e.getMessage());
+    }
   }
 
   @Transactional
@@ -128,12 +140,16 @@ public class PlanService {
 
     user.setAutoRenewal(!user.getAutoRenewal());
 
-    notificationService.sendNotification(
-        user,
-        "Auto-Renewal " + (user.getAutoRenewal() ? "Enabled" : "Disabled"),
-        "Auto-renewal has been " + (user.getAutoRenewal() ? "enabled" : "disabled") + " for your " + user.getPlan()
-            + " plan.",
-        Map.of("autoRenewal", user.getAutoRenewal()));
+    try {
+      notificationService.sendNotification(
+          user,
+          "Auto-Renewal " + (user.getAutoRenewal() ? "Enabled" : "Disabled"),
+          "Auto-renewal has been " + (user.getAutoRenewal() ? "enabled" : "disabled") + " for your "
+              + user.getPlan().toLowerCase() + " plan.",
+          Map.of("autoRenewal", user.getAutoRenewal()));
+    } catch (Exception e) {
+      System.out.println("Error sending notification: " + e.getMessage());
+    }
   }
 
   public void initializeDefaultPlans() {
