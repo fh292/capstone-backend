@@ -107,7 +107,8 @@ public class CardService {
             throw new IllegalArgumentException("User must be provided to create a card.");
         }
         if (request.getLatitude() == null || request.getLongitude() == null || request.getRadius() == null) {
-            throw new IllegalArgumentException("Latitude, longitude, and radius are required for location-locked cards");
+            throw new IllegalArgumentException(
+                    "Latitude, longitude, and radius are required for location-locked cards");
         }
 
         checkAndUpdateCardIssuance(user);
@@ -193,10 +194,10 @@ public class CardService {
         }
 
         CardEntity savedCard = cardRepository.save(card);
-//        System.out.println("Updated Card ID: " + card.getId());
-//        System.out.println("Updated Card Name: " + card.getCardName());
-//        System.out.println("Updated Card Color: " + card.getCardColor());
-//        System.out.println("Updated Card Icon: " + card.getCardIcon());
+        // System.out.println("Updated Card ID: " + card.getId());
+        // System.out.println("Updated Card Name: " + card.getCardName());
+        // System.out.println("Updated Card Color: " + card.getCardColor());
+        // System.out.println("Updated Card Icon: " + card.getCardIcon());
 
         return savedCard;
     }
@@ -225,7 +226,8 @@ public class CardService {
         card.setPer_year(null);
         card.setTotal(null);
 
-        // If we're removing the limit, we can return now since all limits are already null
+        // If we're removing the limit, we can return now since all limits are already
+        // null
         if (request.getRemoveLimit()) {
             card.setLimitSetAt(LocalDateTime.now());
             return cardRepository.save(card);
@@ -252,7 +254,8 @@ public class CardService {
                 card.setTotal(request.getAmount());
                 break;
             default:
-                throw new IllegalArgumentException("Invalid limit type. Must be one of: PER_TRANSACTION, PER_DAY, PER_WEEK, PER_MONTH, PER_YEAR, TOTAL");
+                throw new IllegalArgumentException(
+                        "Invalid limit type. Must be one of: PER_TRANSACTION, PER_DAY, PER_WEEK, PER_MONTH, PER_YEAR, TOTAL");
         }
 
         card.setLimitSetAt(LocalDateTime.now());
@@ -312,7 +315,8 @@ public class CardService {
         return cardRepository.save(card);
     }
 
-    public LocationLockedCardResponse updateGeoLocation(Long cardId, LocationLockedCardResponse locationUpdate, UserEntity user) {
+    public LocationLockedCardResponse updateGeoLocation(Long cardId, LocationLockedCardResponse locationUpdate,
+            UserEntity user) {
         CardEntity card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new IllegalArgumentException("Card not found with ID: " + cardId));
 
@@ -351,10 +355,13 @@ public class CardService {
                 .sorted((c1, c2) -> {
                     // Helper function to get sort priority (lower number = higher priority)
                     Function<CardEntity, Integer> getPriority = card -> {
-                        if (Boolean.TRUE.equals(card.getPinned())) return 1;  // Pinned cards first
-                        if (Boolean.FALSE.equals(card.getPaused()) && Boolean.FALSE.equals(card.getClosed())) return 2;  // Active cards second
-                        if (Boolean.TRUE.equals(card.getPaused()) && Boolean.FALSE.equals(card.getClosed())) return 3;  // Paused cards third
-                        return 4;  // Closed cards last
+                        if (Boolean.TRUE.equals(card.getPinned()))
+                            return 1; // Pinned cards first
+                        if (Boolean.FALSE.equals(card.getPaused()) && Boolean.FALSE.equals(card.getClosed()))
+                            return 2; // Active cards second
+                        if (Boolean.TRUE.equals(card.getPaused()) && Boolean.FALSE.equals(card.getClosed()))
+                            return 3; // Paused cards third
+                        return 4; // Closed cards last
                     };
                     return getPriority.apply(c1).compareTo(getPriority.apply(c2));
                 })
@@ -374,7 +381,6 @@ public class CardService {
                 })
                 .collect(Collectors.toList());
     }
-
 
     private void checkAndUpdateCardIssuance(UserEntity user) {
         if (user.getCurrentMonthCardIssuance() >= user.getMonthlyCardIssuanceLimit()) {
@@ -397,5 +403,15 @@ public class CardService {
 
     private LocalDate generateExpiryDate() {
         return LocalDate.now().plusYears(3);
+    }
+
+    public CardEntity getCardById(Long cardId) {
+        return cardRepository.findById(cardId)
+                .orElseThrow(() -> new IllegalArgumentException("Card not found with ID: " + cardId));
+    }
+
+    public CardEntity getCardByCardNumber(String cardNumber) {
+        return cardRepository.findByCardNumber(cardNumber)
+                .orElseThrow(() -> new IllegalArgumentException("Card not found with card number: " + cardNumber));
     }
 }
