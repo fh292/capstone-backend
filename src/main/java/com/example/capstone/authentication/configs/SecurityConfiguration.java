@@ -43,8 +43,9 @@ public class SecurityConfiguration {
                                 "/transaction/process", // Allow transaction processing without auth
                                 "/ws/**",
                                 "/user/uploads/**",
-                                "/uploads/**"
-                        ).permitAll()
+                                "/uploads/**",
+                                "/seed/**")
+                        .permitAll()
 
                         // 2) Everything else
                         .anyRequest().authenticated())
