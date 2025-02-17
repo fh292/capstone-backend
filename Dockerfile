@@ -7,10 +7,13 @@ FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 COPY --from=build /app/target/*.jar cvrd.jar
 
-# Install curl for healthcheck
+# Install PostgreSQL client and curl for database operations and healthcheck
 RUN apt-get update && \
-    apt-get install -y curl && \
+    apt-get install -y postgresql-client curl && \
     rm -rf /var/lib/apt/lists/*
+
+# Copy seed file to a known location
+COPY src/main/resources/seed/seed.sql /app/seed/seed.sql
 
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","cvrd.jar"]

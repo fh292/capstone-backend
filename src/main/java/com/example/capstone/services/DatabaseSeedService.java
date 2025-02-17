@@ -74,6 +74,11 @@ public class DatabaseSeedService {
     String projectRoot = new File(".").getAbsolutePath();
     Path sqlPath = Paths.get(projectRoot, "src", "main", "resources", "seed", "seed.sql");
 
+    // Check container path if development path doesn't exist
+    if (!Files.exists(sqlPath)) {
+      sqlPath = Paths.get("/app/seed/seed.sql");
+    }
+
     if (!Files.exists(sqlPath)) {
       String error = "SQL seed file not found at: " + sqlPath;
       logger.error(error);
@@ -102,6 +107,8 @@ public class DatabaseSeedService {
     // Build and execute psql command
     ProcessBuilder pb = new ProcessBuilder(
         "psql",
+        "-h", "postgres",
+        "-p", "5432",
         "-U", dbUsername,
         "-d", dbName,
         "-f", sqlPath.toString());
