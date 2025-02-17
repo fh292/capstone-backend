@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.CacheEvict;
 
 import com.example.capstone.authentication.entities.UserEntity;
 import com.example.capstone.authentication.repositories.UserRepository;
@@ -45,34 +46,38 @@ public class TransactionService {
         this.subscriptionService = subscriptionService;
     }
 
+    @Cacheable(value = "transactions-page", key = "#page + '-' + #size")
     public Page<TransactionEntity> getAllTransactionsPg(int page, int size) {
-        if (size <= 0) size = 10;
-        if (page < 0) page = 0;
+        if (size <= 0)
+            size = 10;
+        if (page < 0)
+            page = 0;
         Pageable pageable = PageRequest.of(page, size);
         return transactionRepository.findAll(pageable);
     }
 
-
-    @Cacheable(value = "transactions",key = "#id")
+    @Cacheable(value = "transactions", key = "'all'")
     public List<TransactionResponse> getAllTransactions() {
         return transactionRepository.findAll().stream()
                 .map(TransactionResponse::new)
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "transactions", key = "'user-' + #userId")
     public List<TransactionResponse> getTransactionsByUserId(Long userId) {
         return transactionRepository.findByUserId(userId).stream()
                 .map(TransactionResponse::new)
                 .collect(Collectors.toList());
     }
 
-    @Cacheable(value = "transactions",key = "#user.id")
+    @Cacheable(value = "transactions", key = "'user-' + #user.id")
     public List<TransactionResponse> getAuthenticatedUserTransactions(UserEntity user) {
         return transactionRepository.findByUser(user).stream()
                 .map(TransactionResponse::new)
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "transactions", key = "'card-' + #cardId")
     public List<TransactionResponse> getTransactionsByCardId(Long cardId, UserEntity user) {
         CardEntity card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new RuntimeException("Card not found"));
@@ -87,12 +92,14 @@ public class TransactionService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "transactions", key = "'id-' + #id")
     public TransactionResponse getTransactionById(Long id) {
         TransactionEntity transaction = transactionRepository.findById(id)
                 .orElse(null);
         return transaction != null ? new TransactionResponse(transaction) : null;
     }
 
+    @CacheEvict(value = { "transactions", "transactions-page" }, allEntries = true)
     public TransactionResponse processTransaction(TransactionRequest request) {
         // Find card by card number
         CardEntity card = cardRepository.findByCardNumber(request.getCardNumber())
@@ -100,7 +107,8 @@ public class TransactionService {
 
         // Check if user has a bank account connected
         if (card.getUser().getBankAccountUsername() == null || card.getUser().getBankAccountNumber() == null) {
-            return createDeclinedTransaction(request, card, "No bank account connected. Please connect a bank account first.");
+            return createDeclinedTransaction(request, card,
+                    "No bank account connected. Please connect a bank account first.");
         }
 
         // Basic card validation
@@ -141,7 +149,8 @@ public class TransactionService {
 
         // Group transactions by category
         Map<String, Double> categorySpending = transactions.stream()
-                .collect(Collectors.groupingBy(TransactionEntity::getCategory, Collectors.summingDouble(TransactionEntity::getAmount)));
+                .collect(Collectors.groupingBy(TransactionEntity::getCategory,
+                        Collectors.summingDouble(TransactionEntity::getAmount)));
 
         // Find the most-used merchant and highest spending category
         String mostUsedMerchant = merchantFrequency.entrySet().stream()
@@ -180,7 +189,7 @@ public class TransactionService {
 
             // Compare year and month only
             if (requestExpiryDate.getYear() != card.getExpiryDate().getYear() ||
-                requestExpiryDate.getMonth() != card.getExpiryDate().getMonth()) {
+                    requestExpiryDate.getMonth() != card.getExpiryDate().getMonth()) {
                 return "Invalid expiry date";
             }
         } catch (Exception e) {
@@ -312,9 +321,8 @@ public class TransactionService {
 
         // Calculate distance between transaction location and card's allowed location
         double distance = calculateDistance(
-            card.getLatitude(), card.getLongitude(),
-            request.getLatitude(), request.getLongitude()
-        );
+                card.getLatitude(), card.getLongitude(),
+                request.getLatitude(), request.getLongitude());
 
         if (distance > card.getRadius()) {
             return "Transaction location outside allowed radius";
@@ -330,7 +338,7 @@ public class TransactionService {
         double lonDistance = Math.toRadians(lon2 - lon1);
         double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
                 + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+                        * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
         return R * c;
@@ -345,22 +353,19 @@ public class TransactionService {
         // Send notification for declined transaction
         try {
             notificationService.sendNotification(
-                card.getUser(),
-                "Transaction Declined",
-            String.format("Payment of KD %.2f at %s was declined. %s",
-                request.getAmount(),
-                request.getMerchant(),
-                reason
-            ),
-            Map.of(
-                "transactionId", transaction.getId(),
-                "cardId", card.getId(),
-                "amount", request.getAmount(),
-                "merchant", request.getMerchant(),
-                "status", "DECLINED",
-                "reason", reason
-                )
-            );
+                    card.getUser(),
+                    "Transaction Declined",
+                    String.format("Payment of KD %.2f at %s was declined. %s",
+                            request.getAmount(),
+                            request.getMerchant(),
+                            reason),
+                    Map.of(
+                            "transactionId", transaction.getId(),
+                            "cardId", card.getId(),
+                            "amount", request.getAmount(),
+                            "merchant", request.getMerchant(),
+                            "status", "DECLINED",
+                            "reason", reason));
         } catch (Exception e) {
             System.out.println("Error sending notification: " + e.getMessage());
         }
@@ -375,10 +380,10 @@ public class TransactionService {
 
         // Update the user's current daily and monthly spend
         UserEntity user = card.getUser();
-        if(user.getCurrentDailySpend() == null) {
+        if (user.getCurrentDailySpend() == null) {
             user.setCurrentDailySpend(0.0);
         }
-        if(user.getCurrentMonthlySpend() == null) {
+        if (user.getCurrentMonthlySpend() == null) {
             user.setCurrentMonthlySpend(0.0);
         }
         user.setCurrentDailySpend(user.getCurrentDailySpend() + request.getAmount());
@@ -391,20 +396,17 @@ public class TransactionService {
         // Send notification for approved transaction
         try {
             notificationService.sendNotification(
-                user,
-                "Transaction Approved",
-                String.format("Payment of KD %.2f at %s was approved.",
-                request.getAmount(),
-                request.getMerchant()
-            ),
-            Map.of(
-                "transactionId", transaction.getId(),
-                "cardId", card.getId(),
-                "amount", request.getAmount(),
-                "merchant", request.getMerchant(),
-                "status", "APPROVED"
-                )
-            );
+                    user,
+                    "Transaction Approved",
+                    String.format("Payment of KD %.2f at %s was approved.",
+                            request.getAmount(),
+                            request.getMerchant()),
+                    Map.of(
+                            "transactionId", transaction.getId(),
+                            "cardId", card.getId(),
+                            "amount", request.getAmount(),
+                            "merchant", request.getMerchant(),
+                            "status", "APPROVED"));
         } catch (Exception e) {
             System.out.println("Error sending notification: " + e.getMessage());
         }
