@@ -1,11 +1,12 @@
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
 COPY . .
-RUN mvn clean install -DskipTests
+RUN mvn clean package -DskipTests && \
+    ls -la target/*.jar
 
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
-COPY --from=build /app/target/*.jar cvrd.jar
+COPY --from=build /app/target/*[^sources].jar cvrd.jar
 
 # Install PostgreSQL client and curl for database operations and healthcheck
 RUN apt-get update && \
