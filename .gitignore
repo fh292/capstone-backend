@@ -2,6 +2,9 @@
 # uploads folder for user profile pictures
 uploads/
 
+# env
+.env
+
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar

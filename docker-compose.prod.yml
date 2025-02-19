@@ -23,7 +23,7 @@ services:
     deploy:
       replicas: ${APP_REPLICAS:-2}
       restart_policy:
-        condition: any
+        condition: on-failure
         delay: 5s
         max_attempts: 3
         window: 120s
@@ -57,7 +57,7 @@ services:
       - cvrd-network
     deploy:
       restart_policy:
-        condition: any
+        condition: on-failure
         delay: 5s
         max_attempts: 3
         window: 120s
@@ -83,7 +83,7 @@ services:
       - cvrd-network
     deploy:
       restart_policy:
-        condition: any
+        condition: on-failure
         delay: 5s
         max_attempts: 3
         window: 120s
@@ -115,7 +115,7 @@ services:
       - cvrd-network
     deploy:
       restart_policy:
-        condition: any
+        condition: on-failure
         delay: 5s
         max_attempts: 3
         window: 120s
