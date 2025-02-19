@@ -44,7 +44,9 @@ public class SecurityConfiguration {
                                 "/ws/**",
                                 "/user/uploads/**",
                                 "/uploads/**",
-                                "/seed/**")
+                                "/seed/**",
+                                "/pgadmin/**",
+                                "/actuator/**")
                         .permitAll()
 
                         // 2) Everything else
