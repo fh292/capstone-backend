@@ -21,7 +21,6 @@ services:
     networks:
       - cvrd-network
     deploy:
-      replicas: ${APP_REPLICAS:-2}
       restart_policy:
         condition: on-failure
         delay: 5s
